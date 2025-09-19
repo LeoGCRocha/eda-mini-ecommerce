@@ -1,0 +1,42 @@
+using EdaMicroEcommerce.Application.CQS.Commands.Products;
+using EdaMicroEcommerce.Domain.Catalog;
+using EdaMicroEcommerce.Domain.Catalog.InventoryItems;
+using EdaMicroEcommerce.Domain.Catalog.Products;
+using EdaMicroEcommerce.Infra.Persistence;
+using EdaMicroEcommerce.Infra.Repositories;
+using EdaMicroEcommerce.Infra.Services;
+using Microsoft.EntityFrameworkCore;
+
+namespace EdaMicroEcommerce.Api.Extensions;
+
+public static class ServicesExtensions
+{
+    public static IServiceCollection AddServices(this IServiceCollection services)
+    {
+        services.AddScoped<IProductInventoryService, ProductInventoryService>();
+        services.AddScoped<IProductRepository, ProductRepository>();
+        services.AddScoped<IInventoryItemRepository, InventoryItemRepository>();
+        return services;
+    }
+
+    public static IServiceCollection AddMediator(this IServiceCollection services)
+    {
+        services.AddMediatR(cfg =>
+        {
+            cfg.RegisterServicesFromAssembly(typeof(CreateProductCommandHandler).Assembly);
+        });
+
+        return services;
+    }
+
+    public static IServiceCollection AddInfra(this IServiceCollection services, IConfiguration appConfiguration)
+    {
+        services.AddDbContext<EdaContext>(options => 
+            options.UseNpgsql(appConfiguration.GetConnectionString("DefaultConnection"))
+                .UseSnakeCaseNamingConvention());
+        
+        AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
+        
+        return services;
+    }
+}
