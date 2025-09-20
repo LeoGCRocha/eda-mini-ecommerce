@@ -1,5 +1,6 @@
 using Carter;
 using EdaMicroEcommerce.Api.Extensions;
+using EdaMicroEcommerce.Api.OutboxWorker;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -13,7 +14,9 @@ builder.Services
     .AddServices()
     .AddMediator()
     .AddInfra(appConfiguration);
-    
+
+builder.Services.AddHostedService<OutboxWorker>();
+
 var app = builder.Build();
 
 if (app.Environment.IsDevelopment())

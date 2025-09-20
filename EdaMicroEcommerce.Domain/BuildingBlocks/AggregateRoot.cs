@@ -1,11 +1,11 @@
+using System.Collections.ObjectModel;
+
 namespace EdaMicroEcommerce.Domain.BuildingBlocks;
 
-public abstract class AggregateRoot<T> : Entity<T> where T : new()
+public abstract class AggregateRoot<T> : Entity<T>, IAggregateRoot where T : new()
 {
     public AggregateRoot() {}
     
-    public IReadOnlyList<IDomainEvent> GetDomainEvents => _domainEvents.AsReadOnly();
-
     public void ClearDomainEvents()
     {
         _domainEvents = [];
@@ -18,4 +18,9 @@ public abstract class AggregateRoot<T> : Entity<T> where T : new()
         _domainEvents.AddRange(domainEvents);
     
     private List<IDomainEvent> _domainEvents = [];
+    
+    public ReadOnlyCollection<IDomainEvent> GetDomainEvents()
+    {
+        return _domainEvents.AsReadOnly();
+    }
 }

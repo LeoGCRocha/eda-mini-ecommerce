@@ -33,7 +33,8 @@ public static class ServicesExtensions
     {
         services.AddDbContext<EdaContext>(options => 
             options.UseNpgsql(appConfiguration.GetConnectionString("DefaultConnection"))
-                .UseSnakeCaseNamingConvention());
+                .UseSnakeCaseNamingConvention()
+                .AddInterceptors(new DomainEventInterceptor()));
         
         AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
         

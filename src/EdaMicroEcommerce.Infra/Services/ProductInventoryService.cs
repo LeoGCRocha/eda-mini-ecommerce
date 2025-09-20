@@ -1,3 +1,4 @@
+using EdaMicroEcommerce.Domain.BuildingBlocks.StronglyTyped;
 using EdaMicroEcommerce.Domain.Catalog;
 using EdaMicroEcommerce.Domain.Catalog.InventoryItems;
 using EdaMicroEcommerce.Domain.Catalog.Products;
@@ -37,5 +38,16 @@ public class ProductInventoryService : IProductInventoryService
             await transaction.RollbackAsync();
             throw;
         }
+    }
+
+    public async Task DeactivateProduct(ProductId productId)
+    {
+        var product = await _productRepository.GetProductAsync(productId);
+        if (product is null)
+            // This should be a specific exception to be handled at middleware
+            throw new Exception("Product not found.");
+        product.DeactivateProduct();
+        
+        await _context.SaveChangesAsync();
     }
 }

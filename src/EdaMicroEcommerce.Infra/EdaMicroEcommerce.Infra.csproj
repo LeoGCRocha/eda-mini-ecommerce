@@ -8,6 +8,7 @@
 
     <ItemGroup>
       <ProjectReference Include="..\..\EdaMicroEcommerce.Domain\EdaMicroEcommerce.Domain.csproj" />
+      <ProjectReference Include="..\EdaMicroEcommerce.Application\EdaMicroEcommerce.Application.csproj" />
     </ItemGroup>
 
     <ItemGroup>

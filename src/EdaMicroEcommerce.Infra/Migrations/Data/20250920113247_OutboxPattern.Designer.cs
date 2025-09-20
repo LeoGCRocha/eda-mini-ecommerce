@@ -3,6 +3,7 @@ using System;
 using EdaMicroEcommerce.Infra.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace EdaMicroEcommerce.Infra.Migrations.Data
 {
     [DbContext(typeof(EdaContext))]
-    partial class EdaContextModelSnapshot : ModelSnapshot
+    [Migration("20250920113247_OutboxPattern")]
+    partial class OutboxPattern
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -30,12 +33,6 @@ namespace EdaMicroEcommerce.Infra.Migrations.Data
                         .HasColumnName("id");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("id"));
-
-                    b.Property<DateTime>("CreatedAtUtc")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("timestamp without time zone")
-                        .HasColumnName("created_at_utc")
-                        .HasDefaultValueSql("NOW()");
 
                     b.Property<string>("Payload")
                         .IsRequired()
@@ -56,6 +53,11 @@ namespace EdaMicroEcommerce.Infra.Migrations.Data
                         .IsRequired()
                         .HasColumnType("text")
                         .HasColumnName("type");
+
+                    b.Property<DateTime>("created_at_utc")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp without time zone")
+                        .HasColumnName("created_at_utc");
 
                     b.HasKey("id")
                         .HasName("pk_outbox_integration_events");

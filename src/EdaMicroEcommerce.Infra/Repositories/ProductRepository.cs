@@ -1,6 +1,7 @@
 using EdaMicroEcommerce.Domain.BuildingBlocks.StronglyTyped;
 using EdaMicroEcommerce.Domain.Catalog.Products;
 using EdaMicroEcommerce.Infra.Persistence;
+using Microsoft.EntityFrameworkCore;
 
 namespace EdaMicroEcommerce.Infra.Repositories;
 
@@ -18,9 +19,10 @@ public class ProductRepository : IProductRepository
         await _context.AddRangeAsync(product);
     }
 
-    public Task GetProductAsync(ProductId productId)
+    public async Task<Product?> GetProductAsync(ProductId productId)
     {
-        throw new NotImplementedException();
+        var product = await _context.Products.FirstOrDefaultAsync(p => p.Id == productId);
+        return product;
     }
 
     public Task GetProductAsync(List<ProductId> productIds)

@@ -1,4 +1,4 @@
-using EdaMicroEcommerce.Infra.Outbox;
+using EdaMicroEcommerce.Application.Outbox;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -10,17 +10,18 @@ public class OutboxIntegrationConfiguration : IEntityTypeConfiguration<OutboxInt
     {
         builder.ToTable("outbox_integration_events");
 
-        builder.HasKey("id");
-        
         builder.Property<int>("id")
             .ValueGeneratedOnAdd();
+        
+        builder.HasKey("id");
 
         builder.Property(p => p.Type)
             .IsRequired();
 
         builder.Property(p => p.ProcessedAtUtc);
 
-        builder.Property<DateTime>("created_at_utc")
+        builder.Property(p => p.CreatedAtUtc)
+            .HasDefaultValueSql("NOW()")
             .ValueGeneratedOnAdd();
 
         builder.Property(p => p.RetryCount)
