@@ -5,6 +5,6 @@ namespace EdaMicroEcommerce.Domain.Catalog.Products;
 public interface IProductRepository
 {
     Task AddProductAsync(Product product);
-    Task GetProductAsync(ProductId productId);
+    Task<Product?> GetProductAsync(ProductId productId);
     Task GetProductAsync(List<ProductId> productIds);
 }
