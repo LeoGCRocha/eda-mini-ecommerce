@@ -18,6 +18,9 @@ public class OutboxIntegrationConfiguration : IEntityTypeConfiguration<OutboxInt
         builder.Property(p => p.Type)
             .IsRequired();
 
+        builder.Property(p => p.IsDeadLetter)
+            .HasDefaultValue(false);
+
         builder.Property(p => p.ProcessedAtUtc);
 
         builder.Property(p => p.CreatedAtUtc)

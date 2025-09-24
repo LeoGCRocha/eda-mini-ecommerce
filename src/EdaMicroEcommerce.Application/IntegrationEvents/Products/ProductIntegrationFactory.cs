@@ -1,7 +1,7 @@
 using System.Text.Json;
 using EdaMicroEcommerce.Domain.Catalog.Products.Events;
 
-namespace EdaMicroEcommerce.Application.IntegrationEvents;
+namespace EdaMicroEcommerce.Application.IntegrationEvents.Products;
 
 public static class ProductIntegrationFactory
 {

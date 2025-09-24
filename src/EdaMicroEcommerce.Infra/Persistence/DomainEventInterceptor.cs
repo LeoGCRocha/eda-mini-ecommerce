@@ -1,4 +1,5 @@
 using EdaMicroEcommerce.Application.IntegrationEvents;
+using EdaMicroEcommerce.Application.IntegrationEvents.Products;
 using EdaMicroEcommerce.Application.Outbox;
 using EdaMicroEcommerce.Domain.BuildingBlocks;
 using EdaMicroEcommerce.Domain.Catalog.Products.Events;

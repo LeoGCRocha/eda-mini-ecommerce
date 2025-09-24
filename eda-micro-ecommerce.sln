@@ -13,6 +13,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		compose.yaml = compose.yaml
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EcaMicroEcommerce.ProductWorker", "src\EcaMicroEcommerce.ProductWorker\EcaMicroEcommerce.ProductWorker.csproj", "{691F0E76-7B8A-47F8-A728-4C4749BE9982}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -35,5 +37,9 @@ Global
 		{50AE6A60-3C2C-4F31-B02B-FFA77D1FE517}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{50AE6A60-3C2C-4F31-B02B-FFA77D1FE517}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{50AE6A60-3C2C-4F31-B02B-FFA77D1FE517}.Release|Any CPU.Build.0 = Release|Any CPU
+		{691F0E76-7B8A-47F8-A728-4C4749BE9982}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{691F0E76-7B8A-47F8-A728-4C4749BE9982}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{691F0E76-7B8A-47F8-A728-4C4749BE9982}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{691F0E76-7B8A-47F8-A728-4C4749BE9982}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
