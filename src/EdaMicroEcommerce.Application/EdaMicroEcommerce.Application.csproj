@@ -16,4 +16,8 @@
       <ProjectReference Include="..\..\EdaMicroEcommerce.Domain\EdaMicroEcommerce.Domain.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="CQS\Commands\Products\" />
+    </ItemGroup>
+
 </Project>

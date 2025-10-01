@@ -1,8 +1,6 @@
-using EdaMicroEcommerce.Application.Outbox;
-
 namespace EdaMicroEcommerce.Application.IntegrationEvents;
 
 public interface IIntegrationEventPublisher
 {
-    Task PublishOnTopicAsync<T>(T @event) where T : OutboxIntegrationEvent;
+    Task PublishOnTopicAsync<T>(T payload, string producerName, string? key = null);
 }

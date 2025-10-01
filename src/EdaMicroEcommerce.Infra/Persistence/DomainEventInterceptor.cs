@@ -14,7 +14,7 @@ public class DomainEventInterceptor : SaveChangesInterceptor
     // Entender melhor sempre situações que é possivel aplicar
     private readonly Dictionary<Type, Func<IDomainEvent, OutboxIntegrationEvent>> _factoryDictionary = new()
     {
-        { typeof(ProductDeactivationEvent), e => ProductIntegrationFactory.FromDomain((ProductDeactivationEvent) e) } 
+        { typeof(ProductDeactivatedEvent), e => ProductIntegrationFactory.FromDomain((ProductDeactivatedEvent) e) } 
     };
 
     public override InterceptionResult<int> SavingChanges(DbContextEventData eventData, InterceptionResult<int> result)

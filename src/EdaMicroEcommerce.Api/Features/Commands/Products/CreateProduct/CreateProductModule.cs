@@ -1,9 +1,8 @@
 using Carter;
-using EdaMicroEcommerce.Application.CQS.Commands.Products;
 using MediatR;
 using Microsoft.AspNetCore.Http.HttpResults;
 
-namespace EdaMicroEcommerce.Api.Routes.Commands.Product;
+namespace EdaMicroEcommerce.Api.Features.Commands.Products.CreateProduct;
 
 public class CreateProductModule : ICarterModule
 {
@@ -12,7 +11,6 @@ public class CreateProductModule : ICarterModule
         app.MapPost("api/v1/product", async (CreateProductCommand cmd, IMediator mediator) =>
             {
                 await mediator.Send(cmd);
-
                 return Results.Ok();
             })
             .Produces<Created>()

@@ -34,4 +34,12 @@ public sealed class InventoryItem : AggregateRoot<InventoryItemId>
         if (AvailableQuantity <= ReorderLevel)
             AddDomainEvent(new ProductLowStockEvent(ProductId, Id, ReorderLevel));
     }
+
+    public void MakeUnavailable()
+    {
+        // <WARNING> Em uma estrutura mais robusta real seria necessário pensar uma forma de como lidar com os produtos
+        // já reservados. Na visão de produto definida aqui, o Available é definido como zero para impedir novas compras
+        // e o que já foi reservado permanecerá igual.
+        AvailableQuantity = 0;
+    }
 }

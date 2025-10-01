@@ -1,44 +1,39 @@
 using Carter;
-using KafkaFlow;
 using EdaMicroEcommerce.Api.Extensions;
 using EdaMicroEcommerce.Api.OutboxWorker;
 using EdaMicroEcommerce.Application.IntegrationEvents;
+using EdaMicroEcommerce.Infra;
+using EdaMicroEcommerce.Infra.Configuration;
 using EdaMicroEcommerce.Infra.MessageBroker;
-using EdaMicroEcommerce.Infra.MessageBroker.Builders;
-using EdaMicroEcommerce.Infra.MessageBroker.ProducerBuilder;
-using EdaMicroEcommerce.Infra.MessageBroker.Products;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
-builder.Services.AddCarter();
+builder.Services.Configure<MessageBrokerConfiguration>(
+    builder.Configuration.GetSection("MessageBroker"));
+
+var services = builder.Services;
+
+services.AddEndpointsApiExplorer();
+services.AddSwaggerGen();
+services.AddCarter();
 
 var appConfiguration = builder.Configuration;
 
-// TODO: Move this to infra
 // TODO: Add schema registry
-// TODO: Add topics names to appSettings
-var kafkaBootstrapServer = appConfiguration.GetConnectionString("KafkaBootstrapServer");
-if (kafkaBootstrapServer is null)
-    throw new ArgumentException("Should have defined bootstrap server.");
+services.AddTransient<IIntegrationEventPublisher, IntegrationEventPublisher>();
 
-builder.Services.AddScoped<IIntegrationEventPublisher, IntegrationEventPublisher>();
-var cluster = new ClusterBuilder()
-    .WithBrokers(kafkaBootstrapServer)
-    .WithTopic(ProductDeactivated.TopicName, 1, 1)
-    .WithProducer(new ProductDeactivated());
+// <TIP> kafka-topics --delete --topic product-deactivated --bootstrap-server localhost:9092
+var messageBrokerSection = builder.Configuration.GetSection("MessageBroker");
+var messageBroker = messageBrokerSection.Get<MessageBrokerConfiguration>();
+if (messageBroker is null)
+    throw new Exception("O Message Broker precisa estar definido corretamente.");
 
-builder.Services
-    .AddServices()
+services.AddDatabase(appConfiguration)
     .AddMediator()
-    .AddInfra(appConfiguration);
+    .AddProductInventoryServices()
+    .AddKafka(messageBroker);
 
-builder.Services.AddKafka(kafka => 
-     cluster.CreateBuilder(kafka)
-);
-
-builder.Services.AddHostedService<OutboxWorker>();
+services.AddHostedService<OutboxWorker>();
 
 var app = builder.Build();
 

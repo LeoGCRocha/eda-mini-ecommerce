@@ -11,6 +11,7 @@
       <PackageReference Include="Carter" Version="8.0.0" />
       <PackageReference Include="EFCore.NamingConventions" Version="9.0.0" />
       <PackageReference Include="KafkaFlow" Version="4.0.1" />
+      <PackageReference Include="KafkaFlow.LogHandler.Console" Version="4.0.1" />
       <PackageReference Include="KafkaFlow.Microsoft.DependencyInjection" Version="4.0.1" />
       <PackageReference Include="KafkaFlow.SchemaRegistry" Version="4.0.1" />
       <PackageReference Include="KafkaFlow.Serializer.JsonCore" Version="4.0.1" />
@@ -23,7 +24,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="Routes\Queries\" />
+      <Folder Include="Features\Queries\" />
     </ItemGroup>
 
     <ItemGroup>

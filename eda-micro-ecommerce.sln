@@ -13,7 +13,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		compose.yaml = compose.yaml
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EcaMicroEcommerce.ProductWorker", "src\EcaMicroEcommerce.ProductWorker\EcaMicroEcommerce.ProductWorker.csproj", "{691F0E76-7B8A-47F8-A728-4C4749BE9982}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EcaMicroEcommerce.InventoryWorker", "src\EcaMicroEcommerce.InventoryWorker\EcaMicroEcommerce.InventoryWorker.csproj", "{691F0E76-7B8A-47F8-A728-4C4749BE9982}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

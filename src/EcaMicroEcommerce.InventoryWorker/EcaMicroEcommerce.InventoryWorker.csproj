@@ -5,17 +5,29 @@
         <TargetFramework>net8.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
+        <RootNamespace>EcaMicroEcommerce.ProductWorker</RootNamespace>
     </PropertyGroup>
 
     <ItemGroup>
       <PackageReference Include="KafkaFlow" Version="4.0.1" />
       <PackageReference Include="KafkaFlow.Extensions.Hosting" Version="4.0.1" />
+      <PackageReference Include="KafkaFlow.LogHandler.Console" Version="4.0.1" />
+      <PackageReference Include="KafkaFlow.LogHandler.Microsoft" Version="4.0.1" />
       <PackageReference Include="KafkaFlow.Microsoft.DependencyInjection" Version="4.0.1" />
       <PackageReference Include="Microsoft.Extensions.Hosting" Version="9.0.9" />
     </ItemGroup>
 
     <ItemGroup>
       <ProjectReference Include="..\EdaMicroEcommerce.Infra\EdaMicroEcommerce.Infra.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <None Update="appsettings.json">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+      <None Update="appsettings.Development.json">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
     </ItemGroup>
 
 </Project>

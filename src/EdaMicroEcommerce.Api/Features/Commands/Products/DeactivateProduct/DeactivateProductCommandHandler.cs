@@ -2,12 +2,7 @@ using EdaMicroEcommerce.Domain.BuildingBlocks.StronglyTyped;
 using EdaMicroEcommerce.Domain.Catalog;
 using MediatR;
 
-namespace EdaMicroEcommerce.Application.CQS.Commands.Products;
-
-public class DeactivateProductCommand : IRequest
-{
-    public Guid ProductId { get; set; }
-}
+namespace EdaMicroEcommerce.Api.Features.Commands.Products.DeactivateProduct;
 
 public class DeactivateProductCommandHandler : IRequestHandler<DeactivateProductCommand>
 {
@@ -20,6 +15,6 @@ public class DeactivateProductCommandHandler : IRequestHandler<DeactivateProduct
 
     public async Task Handle(DeactivateProductCommand request, CancellationToken cancellationToken)
     {
-        await _productInventoryService.DeactivateProduct(new ProductId(request.ProductId));
+        await _productInventoryService.DeactivateProductAsync(new ProductId(request.ProductId));
     }
 }

@@ -1,6 +1,8 @@
+using MediatR;
 using Microsoft.EntityFrameworkCore;
 using EdaMicroEcommerce.Infra.Persistence;
 using EdaMicroEcommerce.Application.IntegrationEvents;
+using EdaMicroEcommerce.Application.IntegrationEvents.Products.ProductDeactivated;
 
 namespace EdaMicroEcommerce.Api.OutboxWorker;
 
@@ -14,13 +16,17 @@ public class OutboxWorker(IServiceProvider serviceProvider, ILogger<OutboxWorker
         logger.LogInformation($"{nameof(OutboxWorker)} started execution.");
         while (!stoppingToken.IsCancellationRequested)
         {
+            // <WARNING> Temos um possível problema aqui no OUTBOX que é se for modificado o nome da classe o outbox ficaria perdido
+            // para encontrar a respectiva implementação
+
             // TODO: Adicionar SCHEMA REGISTRY
             // TODO: Make some tests
             using var scope = serviceProvider.CreateScope();
             var dbContext = scope.ServiceProvider.GetRequiredService<EdaContext>();
-            var publisher = scope.ServiceProvider.GetRequiredService<IIntegrationEventPublisher>();
-            
-            var integrationEvents = await dbContext.OutboxIntegrationEvents.Where(p => p.ProcessedAtUtc == null && !p.IsDeadLetter)
+            var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
+
+            var integrationEvents = await dbContext.OutboxIntegrationEvents
+                .Where(p => p.ProcessedAtUtc == null && !p.IsDeadLetter)
                 .OrderBy(p => p.CreatedAtUtc).Take(MaxBatchSize)
                 .ToListAsync(cancellationToken: stoppingToken);
 
@@ -33,22 +39,33 @@ public class OutboxWorker(IServiceProvider serviceProvider, ILogger<OutboxWorker
                 // at least once guarantee
                 try
                 {
-                    // TODO: pass cancellation token
-                    await publisher.PublishOnTopicAsync(@event);
+                    // TODO: Passar a parte a baixo para um lugar que faça mais sentido
+                    switch (@event.Type)
+                    {
+                        case EventType.ProductDeactivated:
+                            await mediator.Send(
+                                new ProductDeactivatedIntegration(EventType.ProductDeactivated, @event.Payload), ct);
+                            break;
+                        default:
+                            throw new ArgumentException("Tipo inesperado para EventType");
+                    }
+
                     @event.SetProcessedAtToNow();
                 }
                 catch (Exception ex)
                 {
+                    // <WARNING> Aqui tem um problema no código que não sei exatamente o erro que deu no outbox pode ser ruim para 
+                    // rastreabilidade dos erros
                     logger.LogError(ex, "Message cannot be published");
                     @event.UpdateRetryCount();
-                    
+
                     if (@event.RetryCount > 5)
                         @event.MarkAsDead();
                 }
             });
-            
+
             await dbContext.SaveChangesAsync(stoppingToken);
-            await Task.Delay(TimeSpan.FromMinutes(1), stoppingToken);
+            await Task.Delay(TimeSpan.FromSeconds(30), stoppingToken);
         }
     }
 }

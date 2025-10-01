@@ -1,8 +1,7 @@
 using Carter;
 using MediatR;
-using EdaMicroEcommerce.Application.CQS.Commands.Products;
 
-namespace EdaMicroEcommerce.Api.Routes.Commands.Product;
+namespace EdaMicroEcommerce.Api.Features.Commands.Products.DeactivateProduct;
 
 public class DeactivateProductModule : ICarterModule
 {
