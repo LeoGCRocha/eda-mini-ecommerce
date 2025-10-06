@@ -3,11 +3,11 @@ using EdaMicroEcommerce.Domain.BuildingBlocks.StronglyTyped;
 
 namespace EdaMicroEcommerce.Domain.Catalog.Products.Events;
 
-public class ProductDeactivationEvent : IDomainEvent
+public class ProductDeactivatedEvent : IDomainEvent
 {
     public ProductId ProductId { get; set; }
 
-    public ProductDeactivationEvent(ProductId productId)
+    public ProductDeactivatedEvent(ProductId productId)
     {
         ProductId = productId;
     }

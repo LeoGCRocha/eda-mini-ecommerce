@@ -33,7 +33,7 @@ public sealed class Product : AggregateRoot<ProductId>
             return;
         
         IsActive = false;
-        AddDomainEvent(new ProductDeactivationEvent(Id));
+        AddDomainEvent(new ProductDeactivatedEvent(Id));
     }
     
     private Product() {} // Ef

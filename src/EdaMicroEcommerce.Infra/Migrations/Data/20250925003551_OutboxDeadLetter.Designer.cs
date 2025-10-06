@@ -3,6 +3,7 @@ using System;
 using EdaMicroEcommerce.Infra.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace EdaMicroEcommerce.Infra.Migrations.Data
 {
     [DbContext(typeof(EdaContext))]
-    partial class EdaContextModelSnapshot : ModelSnapshot
+    [Migration("20250925003551_OutboxDeadLetter")]
+    partial class OutboxDeadLetter
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -58,8 +61,9 @@ namespace EdaMicroEcommerce.Infra.Migrations.Data
                         .HasDefaultValue(0)
                         .HasColumnName("retry_count");
 
-                    b.Property<int>("Type")
-                        .HasColumnType("integer")
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasColumnType("text")
                         .HasColumnName("type");
 
                     b.HasKey("id")

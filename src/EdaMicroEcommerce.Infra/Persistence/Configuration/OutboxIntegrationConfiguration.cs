@@ -16,7 +16,11 @@ public class OutboxIntegrationConfiguration : IEntityTypeConfiguration<OutboxInt
         builder.HasKey("id");
 
         builder.Property(p => p.Type)
+            .HasConversion<int>()
             .IsRequired();
+
+        builder.Property(p => p.IsDeadLetter)
+            .HasDefaultValue(false);
 
         builder.Property(p => p.ProcessedAtUtc);
 

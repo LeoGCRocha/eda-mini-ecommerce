@@ -40,14 +40,21 @@ public class ProductInventoryService : IProductInventoryService
         }
     }
 
-    public async Task DeactivateProduct(ProductId productId)
+    public async Task DeactivateProductAsync(ProductId productId)
     {
         var product = await _productRepository.GetProductAsync(productId);
         if (product is null)
             // This should be a specific exception to be handled at middleware
-            throw new Exception("Product not found.");
+            throw new Exception("Produto inexistente.");
         product.DeactivateProduct();
         
+        await _context.SaveChangesAsync();
+    }
+
+    public async Task DeactivateProductOnInventoryAsync(ProductId productId)
+    {
+        var inventoryByProduct = await _inventoryItemRepository.GetInventoryItemByProductId(productId);
+        inventoryByProduct.MakeUnavailable();
         await _context.SaveChangesAsync();
     }
 }
