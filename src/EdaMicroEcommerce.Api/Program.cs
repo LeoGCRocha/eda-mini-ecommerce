@@ -1,10 +1,6 @@
 using Carter;
-using EdaMicroEcommerce.Api.Extensions;
-using EdaMicroEcommerce.Api.OutboxWorker;
-using EdaMicroEcommerce.Application.IntegrationEvents;
-using EdaMicroEcommerce.Infra;
 using EdaMicroEcommerce.Infra.Configuration;
-using EdaMicroEcommerce.Infra.MessageBroker;
+using EdaMicroEcommerce.Api.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -19,21 +15,24 @@ services.AddCarter();
 
 var appConfiguration = builder.Configuration;
 
-// TODO: Add schema registry
-services.AddTransient<IIntegrationEventPublisher, IntegrationEventPublisher>();
+// // TODO: Add schema registry
+// services.AddTransient<IIntegrationEventPublisher, IntegrationEventPublisher>();
+//
+// // <TIP> kafka-topics --delete --topic product-deactivated --bootstrap-server localhost:9092
+// var messageBrokerSection = builder.Configuration.GetSection("MessageBroker");
+// var messageBroker = messageBrokerSection.Get<MessageBrokerConfiguration>();
+// if (messageBroker is null)
+//     throw new Exception("O Message Broker precisa estar definido corretamente.");
 
-// <TIP> kafka-topics --delete --topic product-deactivated --bootstrap-server localhost:9092
-var messageBrokerSection = builder.Configuration.GetSection("MessageBroker");
-var messageBroker = messageBrokerSection.Get<MessageBrokerConfiguration>();
-if (messageBroker is null)
-    throw new Exception("O Message Broker precisa estar definido corretamente.");
+services
+    .AddModulesServices(appConfiguration);
 
-services.AddDatabase(appConfiguration)
-    .AddMediator()
-    .AddProductInventoryServices()
-    .AddKafka(messageBroker);
+// services.AddDatabase(appConfiguration)
+//     .AddMediator()
+//     .AddProductInventoryServices()
+//     .AddKafka(messageBroker);
 
-services.AddHostedService<OutboxWorker>();
+// services.AddHostedService<OutboxWorker>();
 
 var app = builder.Build();
 

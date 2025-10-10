@@ -28,8 +28,9 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\EdaMicroEcommerce.Application\EdaMicroEcommerce.Application.csproj" />
-      <ProjectReference Include="..\EdaMicroEcommerce.Infra\EdaMicroEcommerce.Infra.csproj" />
+      <ProjectReference Include="..\Catalog.Infra\Catalog.Infra.csproj" />
+      <ProjectReference Include="..\Platform.Application\Platform.Application.csproj" />
+      <ProjectReference Include="..\Plataform.Infra\Plataform.Infra.csproj" />
     </ItemGroup>
 
     <ItemGroup>

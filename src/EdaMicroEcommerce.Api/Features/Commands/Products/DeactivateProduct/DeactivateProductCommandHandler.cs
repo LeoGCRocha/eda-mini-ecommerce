@@ -1,5 +1,5 @@
+using Catalog.Domain.Catalog;
 using EdaMicroEcommerce.Domain.BuildingBlocks.StronglyTyped;
-using EdaMicroEcommerce.Domain.Catalog;
 using MediatR;
 
 namespace EdaMicroEcommerce.Api.Features.Commands.Products.DeactivateProduct;
