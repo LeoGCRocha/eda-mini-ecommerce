@@ -1,0 +1,53 @@
+using Catalog.Application.IntegrationEvents;
+using Catalog.Application.IntegrationEvents.Products;
+using Catalog.Domain.Catalog.Products.Events;
+using EdaMicroEcommerce.Application.Outbox;
+using EdaMicroEcommerce.Domain.BuildingBlocks;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Diagnostics;
+
+namespace Catalog.Infra;
+
+public class DomainEventsInterceptor : SaveChangesInterceptor
+{
+    private readonly Dictionary<Type, Func<IDomainEvent, OutboxIntegrationEvent<EventType>>> _factoryDictionary = new()
+    {
+        { typeof(ProductDeactivatedEvent), e => ProductIntegrationFactory.FromDomain((ProductDeactivatedEvent)e) }
+    };
+
+    public override InterceptionResult<int> SavingChanges(DbContextEventData eventData,
+        InterceptionResult<int> result)
+    {
+        return SavingChangesAsync(eventData, result).GetAwaiter().GetResult();
+    }
+
+    public override ValueTask<InterceptionResult<int>> SavingChangesAsync(DbContextEventData eventData,
+        InterceptionResult<int> result,
+        CancellationToken cancellationToken = new CancellationToken())
+    {
+        var context = eventData.Context;
+
+        if (context is null)
+            throw new ArgumentException("Expected to receive a context here.");
+
+        var outbox = context.Set<OutboxIntegrationEvent<EventType>>();
+
+        var entries = context!.ChangeTracker.Entries()
+            .Where(evt => evt.State is EntityState.Added or EntityState.Modified)
+            .Select(e => e.Entity);
+
+        var entriesAggregate = entries.OfType<IAggregateRoot>().ToList();
+        var domainEvents = entriesAggregate.SelectMany(e => e.GetDomainEvents());
+
+        foreach (var domainEvt in domainEvents)
+        {
+            if (_factoryDictionary.TryGetValue(domainEvt.GetType(), out var factoryFunc))
+                outbox.Add(factoryFunc(domainEvt));
+        }
+
+        foreach (var entry in entriesAggregate)
+            entry.ClearDomainEvents();
+
+        return base.SavingChangesAsync(eventData, result, cancellationToken);
+    }
+}

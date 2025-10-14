@@ -1,0 +1,24 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net8.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <RootNamespace>EdaMicroEcommerce.Infra</RootNamespace>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\Platform.Application\Platform.Application.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="EFCore.NamingConventions" Version="9.0.0" />
+      <PackageReference Include="KafkaFlow" Version="4.0.1" />
+      <PackageReference Include="KafkaFlow.Microsoft.DependencyInjection" Version="4.0.1" />
+      <PackageReference Include="KafkaFlow.SchemaRegistry" Version="4.0.1" />
+      <PackageReference Include="KafkaFlow.Serializer.JsonCore" Version="4.0.1" />
+      <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.0" />
+      <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="9.0.1" />
+    </ItemGroup>
+
+</Project>

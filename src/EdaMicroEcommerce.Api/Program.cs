@@ -1,9 +1,9 @@
 using Carter;
-using EdaMicroEcommerce.Api.Extensions;
-using EdaMicroEcommerce.Api.OutboxWorker;
-using EdaMicroEcommerce.Application.IntegrationEvents;
-using EdaMicroEcommerce.Infra;
+using Catalog.Infra;
+using Catalog.Infra.Outbox;
 using EdaMicroEcommerce.Infra.Configuration;
+using EdaMicroEcommerce.Api.Extensions;
+using CatalogOutboxWorker = EdaMicroEcommerce.Application.Outbox;
 using EdaMicroEcommerce.Infra.MessageBroker;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -20,7 +20,7 @@ services.AddCarter();
 var appConfiguration = builder.Configuration;
 
 // TODO: Add schema registry
-services.AddTransient<IIntegrationEventPublisher, IntegrationEventPublisher>();
+services.AddScoped<CatalogOutboxWorker.IIntegrationEventPublisher, IntegrationEventPublisher>();
 
 // <TIP> kafka-topics --delete --topic product-deactivated --bootstrap-server localhost:9092
 var messageBrokerSection = builder.Configuration.GetSection("MessageBroker");
@@ -28,10 +28,11 @@ var messageBroker = messageBrokerSection.Get<MessageBrokerConfiguration>();
 if (messageBroker is null)
     throw new Exception("O Message Broker precisa estar definido corretamente.");
 
-services.AddDatabase(appConfiguration)
-    .AddMediator()
-    .AddProductInventoryServices()
-    .AddKafka(messageBroker);
+services
+    .AddModulesServices(appConfiguration);
+
+services
+    .AddCatalog(appConfiguration);
 
 services.AddHostedService<OutboxWorker>();
 
