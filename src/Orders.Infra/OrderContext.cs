@@ -15,7 +15,7 @@ public class OrderContext(DbContextOptions<OrderContext> options) : DbContext(op
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
-        modelBuilder.HasDefaultSchema("catalog");
+        modelBuilder.HasDefaultSchema("orders");
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(OrderContext).Assembly);
     }
 }

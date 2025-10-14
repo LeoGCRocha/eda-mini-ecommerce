@@ -17,6 +17,7 @@
     <ItemGroup>
       <ProjectReference Include="..\Orders.Application\Orders.Application.csproj" />
       <ProjectReference Include="..\Orders.Domain\Orders.Domain.csproj" />
+      <ProjectReference Include="..\Plataform.Infra\Plataform.Infra.csproj" />
       <ProjectReference Include="..\Platform.Application\Platform.Application.csproj" />
     </ItemGroup>
 

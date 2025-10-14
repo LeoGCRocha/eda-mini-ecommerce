@@ -1,19 +1,19 @@
 using Catalog.Api.CQS.Products.CreateProduct;
 using Catalog.Application.IntegrationEvents;
-using Catalog.Application.IntegrationEvents.Products.ProductDeactivated;
-using Catalog.Infra.Services;
-using Catalog.Infra.Repositories;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using Catalog.Domain.Entities;
 using Catalog.Domain.Entities.InventoryItems;
 using Catalog.Domain.Entities.Products;
+using Catalog.Infra;
+using Catalog.Infra.Repositories;
+using Catalog.Infra.Services;
 using EdaMicroEcommerce.Infra.Configuration;
 using KafkaFlow;
 using KafkaFlow.Serializer;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Catalog.Infra;
+namespace Catalog.Api;
 
 public static class CatalogServicesExtensions
 {
@@ -32,7 +32,7 @@ public static class CatalogServicesExtensions
         return services;
     }
     
-    public static IServiceCollection AddProductInventoryServices(this IServiceCollection services)
+    private static IServiceCollection AddProductInventoryServices(this IServiceCollection services)
     {
         services.AddScoped<IProductInventoryService, ProductInventoryService>();
         services.AddScoped<IProductRepository, ProductRepository>();
@@ -40,7 +40,7 @@ public static class CatalogServicesExtensions
         return services;
     }
     
-    public static IServiceCollection AddDatabase(this IServiceCollection services, IConfiguration appConfiguration)
+    private static IServiceCollection AddDatabase(this IServiceCollection services, IConfiguration appConfiguration)
     {
         services.AddDbContext<CatalogContext>(options =>
             options.UseNpgsql(appConfiguration.GetConnectionString("DefaultConnection"))
@@ -57,7 +57,6 @@ public static class CatalogServicesExtensions
         services.AddMediatR(cfg =>
         {
             cfg.RegisterServicesFromAssembly(typeof(CreateProductCommandHandler).Assembly);
-            cfg.RegisterServicesFromAssembly(typeof(ProductDeactivatedIntegrationHandler).Assembly);
         });
 
         return services;

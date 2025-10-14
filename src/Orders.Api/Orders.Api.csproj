@@ -11,4 +11,9 @@
       <PackageReference Include="MediatR" Version="13.0.0" />
     </ItemGroup>
 
+    <ItemGroup>
+      <ProjectReference Include="..\Orders.Infra\Orders.Infra.csproj" />
+      <ProjectReference Include="..\Plataform.Infra\Plataform.Infra.csproj" />
+    </ItemGroup>
+
 </Project>

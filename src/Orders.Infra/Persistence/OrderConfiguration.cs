@@ -13,6 +13,13 @@ public class OrderConfiguration : IEntityTypeConfiguration<Order>
 
         builder.HasKey(property => property.Id);
 
+        builder.Property(prop => prop.Id)
+            .HasConversion(
+                v => v.Value,
+                value => new OrderId(value))
+            .IsRequired()
+            .ValueGeneratedNever();
+
         builder.Property(prop => prop.CustomerId)
             .HasConversion(
                 v => v.Value,
@@ -60,25 +67,34 @@ public class OrderConfiguration : IEntityTypeConfiguration<Order>
 
         builder.HasIndex(prop => prop.PaymentDate);
 
-        builder.OwnsMany(prop => prop.OrderItems, (table) =>
+        builder.OwnsMany(prop => prop.OrderItems, innerTable =>
         {
-            table.ToTable("order_items");
+            innerTable.ToTable("order_items");
 
-            table.Property(prop => prop.Quantity)
+            innerTable.HasKey(prop => prop.Id);
+
+            innerTable.Property(prop => prop.Id)
+                .HasConversion(
+                    v => v.Value,
+                    value => new OrderItemId(value))
+                .IsRequired()
+                .ValueGeneratedNever();
+
+            innerTable.Property(prop => prop.Quantity)
                 .IsRequired();
 
-            table.Property(prop => prop.UnitPrice)
+            innerTable.Property(prop => prop.UnitPrice)
                 .IsRequired()
                 .HasColumnType("numeric(18,2)");
 
-            table.Property(prop => prop.ProductId)
+            innerTable.Property(prop => prop.ProductId)
                 .HasConversion(
                     v => v.Value,
                     value => new ProductId(value))
                 .IsRequired()
                 .ValueGeneratedNever();
 
-            table.HasIndex(prop => prop.ProductId);
+            innerTable.HasIndex(prop => prop.ProductId);
         });
     }
 }

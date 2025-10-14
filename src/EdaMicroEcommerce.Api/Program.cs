@@ -1,4 +1,5 @@
 using Carter;
+using Catalog.Api;
 using Catalog.Infra;
 using Catalog.Infra.Outbox;
 using EdaMicroEcommerce.Infra.Configuration;

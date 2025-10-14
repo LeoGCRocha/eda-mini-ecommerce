@@ -3,7 +3,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Configuration;
 using Catalog.Application.IntegrationEvents;
-using Catalog.Infra;
+using EcaMicroEcommerce.ProductWorker;
 using Microsoft.Extensions.DependencyInjection;
 using EcaMicroEcommerce.ProductWorker.IntegrationsEvent.ProductDeactivated;
 using EdaMicroEcommerce.Infra.Configuration;
