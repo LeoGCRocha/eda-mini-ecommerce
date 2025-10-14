@@ -1,6 +1,6 @@
 using Catalog.Application.IntegrationEvents;
 using Catalog.Application.IntegrationEvents.Products;
-using Catalog.Domain.Catalog.Products.Events;
+using Catalog.Domain.Entities.Products.Events;
 using EdaMicroEcommerce.Application.Outbox;
 using EdaMicroEcommerce.Domain.BuildingBlocks;
 using Microsoft.EntityFrameworkCore;

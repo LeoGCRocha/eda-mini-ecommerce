@@ -1,5 +1,4 @@
-
-using Catalog.Domain.Catalog.InventoryItems;
+using Catalog.Domain.Entities.InventoryItems;
 using EdaMicroEcommerce.Domain.BuildingBlocks.StronglyTyped;
 using Microsoft.EntityFrameworkCore;
 

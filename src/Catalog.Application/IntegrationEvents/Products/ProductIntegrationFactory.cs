@@ -1,6 +1,6 @@
 using System.Text.Json;
-using Catalog.Domain.Catalog.Products.Events;
 using Catalog.Application.IntegrationEvents.Products.ProductDeactivated;
+using Catalog.Domain.Entities.Products.Events;
 
 namespace Catalog.Application.IntegrationEvents.Products;
 

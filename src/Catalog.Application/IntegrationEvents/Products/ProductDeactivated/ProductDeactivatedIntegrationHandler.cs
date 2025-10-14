@@ -1,5 +1,5 @@
 using System.Text.Json;
-using Catalog.Domain.Catalog.Products.Events;
+using Catalog.Domain.Entities.Products.Events;
 using EdaMicroEcommerce.Application.Outbox;
 using MediatR;
 

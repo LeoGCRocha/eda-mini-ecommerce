@@ -1,7 +1,7 @@
+using Catalog.Domain.Entities;
+using Catalog.Domain.Entities.Products.Events;
 using KafkaFlow;
-using Catalog.Domain.Catalog;
 using Microsoft.Extensions.Logging;
-using Catalog.Domain.Catalog.Products.Events;
 
 namespace EcaMicroEcommerce.ProductWorker.IntegrationsEvent.ProductDeactivated;
 

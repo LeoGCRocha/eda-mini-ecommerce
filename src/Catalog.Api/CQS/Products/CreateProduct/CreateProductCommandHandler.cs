@@ -1,5 +1,5 @@
-using Catalog.Domain.Catalog;
-using Catalog.Domain.Catalog.Products;
+using Catalog.Domain.Entities;
+using Catalog.Domain.Entities.Products;
 using MediatR;
 
 namespace Catalog.Api.CQS.Products.CreateProduct;

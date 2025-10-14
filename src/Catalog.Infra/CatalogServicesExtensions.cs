@@ -1,13 +1,13 @@
 using Catalog.Api.CQS.Products.CreateProduct;
 using Catalog.Application.IntegrationEvents;
 using Catalog.Application.IntegrationEvents.Products.ProductDeactivated;
-using Catalog.Domain.Catalog;
 using Catalog.Infra.Services;
 using Catalog.Infra.Repositories;
 using Microsoft.EntityFrameworkCore;
-using Catalog.Domain.Catalog.Products;
 using Microsoft.Extensions.Configuration;
-using Catalog.Domain.Catalog.InventoryItems;
+using Catalog.Domain.Entities;
+using Catalog.Domain.Entities.InventoryItems;
+using Catalog.Domain.Entities.Products;
 using EdaMicroEcommerce.Infra.Configuration;
 using KafkaFlow;
 using KafkaFlow.Serializer;

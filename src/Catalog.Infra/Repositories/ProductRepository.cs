@@ -1,5 +1,5 @@
+using Catalog.Domain.Entities.Products;
 using Microsoft.EntityFrameworkCore;
-using Catalog.Domain.Catalog.Products;
 using EdaMicroEcommerce.Domain.BuildingBlocks.StronglyTyped;
 
 namespace Catalog.Infra.Repositories;

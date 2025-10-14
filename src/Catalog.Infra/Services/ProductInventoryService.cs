@@ -1,6 +1,6 @@
-using Catalog.Domain.Catalog;
-using Catalog.Domain.Catalog.Products;
-using Catalog.Domain.Catalog.InventoryItems;
+using Catalog.Domain.Entities;
+using Catalog.Domain.Entities.InventoryItems;
+using Catalog.Domain.Entities.Products;
 using EdaMicroEcommerce.Domain.BuildingBlocks.StronglyTyped;
 
 namespace Catalog.Infra.Services;

@@ -1,4 +1,4 @@
-using Catalog.Domain.Catalog;
+using Catalog.Domain.Entities;
 using EdaMicroEcommerce.Domain.BuildingBlocks.StronglyTyped;
 using MediatR;
 

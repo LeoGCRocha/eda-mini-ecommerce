@@ -1,6 +1,6 @@
 using Catalog.Application.IntegrationEvents;
-using Catalog.Domain.Catalog.InventoryItems;
-using Catalog.Domain.Catalog.Products;
+using Catalog.Domain.Entities.InventoryItems;
+using Catalog.Domain.Entities.Products;
 using EdaMicroEcommerce.Application.Outbox;
 using Microsoft.EntityFrameworkCore;
 

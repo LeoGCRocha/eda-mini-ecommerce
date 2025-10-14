@@ -1,4 +1,4 @@
-using Catalog.Domain.Catalog.Products;
+using Catalog.Domain.Entities.Products;
 using EdaMicroEcommerce.Domain.BuildingBlocks.StronglyTyped;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -9,7 +9,6 @@ public class ProductConfiguration : IEntityTypeConfiguration<Product>
 {
     public void Configure(EntityTypeBuilder<Product> builder)
     {
-        // POR CONFIG PARA underscorecase
         builder.ToTable("products");
 
         builder.HasKey(p => p.Id);
