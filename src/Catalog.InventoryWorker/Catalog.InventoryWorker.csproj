@@ -18,7 +18,9 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\Plataform.Infra\Plataform.Infra.csproj" />
+      <ProjectReference Include="..\Catalog.Application\Catalog.Application.csproj" />
+      <ProjectReference Include="..\Catalog.Domain\Catalog.Domain.csproj" />
+      <ProjectReference Include="..\Catalog.Infra\Catalog.Infra.csproj" />
     </ItemGroup>
 
     <ItemGroup>

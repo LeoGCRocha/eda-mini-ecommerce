@@ -1,8 +1,11 @@
 using Carter;
 using MediatR;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.AspNetCore.Routing;
 
-namespace EdaMicroEcommerce.Api.Features.Commands.Products.CreateProduct;
+namespace Catalog.Api.CQS.Products.CreateProduct;
 
 public class CreateProductModule : ICarterModule
 {

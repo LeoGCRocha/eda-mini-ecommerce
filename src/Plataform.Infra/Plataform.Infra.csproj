@@ -8,7 +8,6 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\..\Plataform.Domain\Plataform.Domain.csproj" />
       <ProjectReference Include="..\Platform.Application\Platform.Application.csproj" />
     </ItemGroup>
 

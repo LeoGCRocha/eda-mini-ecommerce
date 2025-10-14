@@ -1,4 +1,4 @@
-namespace Catalog.Application.IntegrationEvents;
+namespace EdaMicroEcommerce.Application.Outbox;
 
 public interface IIntegrationEventPublisher
 {

@@ -1,8 +1,8 @@
-using MediatR;
 using Catalog.Domain.Catalog;
 using Catalog.Domain.Catalog.Products;
+using MediatR;
 
-namespace EdaMicroEcommerce.Api.Features.Commands.Products.CreateProduct;
+namespace Catalog.Api.CQS.Products.CreateProduct;
 
 public class CreateProductCommandHandler : IRequestHandler<CreateProductCommand>
 {

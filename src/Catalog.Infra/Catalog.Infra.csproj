@@ -7,6 +7,7 @@
     </PropertyGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\Catalog.Api\Catalog.Api.csproj" />
       <ProjectReference Include="..\Catalog.Application\Catalog.Application.csproj" />
       <ProjectReference Include="..\Catalog.Domain\Catalog.Domain.csproj" />
       <ProjectReference Include="..\Plataform.Infra\Plataform.Infra.csproj" />
@@ -20,6 +21,7 @@
         <PackageReference Include="KafkaFlow.Serializer.JsonCore" Version="4.0.1" />
         <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.0" />
         <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="9.0.1" />
+        <PackageReference Include="KafkaFlow.LogHandler.Console" Version="4.0.1" />
     </ItemGroup>
 
 </Project>

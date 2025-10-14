@@ -1,5 +1,5 @@
+using EdaMicroEcommerce.Application.Outbox;
 using KafkaFlow.Producers;
-using Catalog.Application.IntegrationEvents;
 
 namespace EdaMicroEcommerce.Infra.MessageBroker;
 

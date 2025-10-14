@@ -1,6 +1,6 @@
 using MediatR;
 
-namespace EdaMicroEcommerce.Api.Features.Commands.Products.DeactivateProduct;
+namespace Catalog.Api.CQS.Products.DeactivateProduct;
 
 public class DeactivateProductCommand : IRequest
 {

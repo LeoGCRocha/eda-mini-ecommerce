@@ -1,5 +1,6 @@
 using System.Text.Json;
 using Catalog.Domain.Catalog.Products.Events;
+using EdaMicroEcommerce.Application.Outbox;
 using MediatR;
 
 namespace Catalog.Application.IntegrationEvents.Products.ProductDeactivated;

@@ -1,13 +1,13 @@
 ﻿using KafkaFlow;
-using KafkaFlow.Serializer;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Configuration;
-using EdaMicroEcommerce.Infra.Configuration;
+using Catalog.Application.IntegrationEvents;
+using Catalog.Infra;
 using Microsoft.Extensions.DependencyInjection;
-using EdaMicroEcommerce.Application.IntegrationEvents;
 using EcaMicroEcommerce.ProductWorker.IntegrationsEvent.ProductDeactivated;
-using EdaMicroEcommerce.Infra;
+using EdaMicroEcommerce.Infra.Configuration;
+using KafkaFlow.Serializer;
 
 var host = Host.CreateDefaultBuilder(args)
     .ConfigureServices((hostContext, services) =>
@@ -15,8 +15,6 @@ var host = Host.CreateDefaultBuilder(args)
         var configuration = hostContext.Configuration;
 
         services.AddLogging(configure => configure.AddConsole());
-
-        // TODO: Botar isso aqui numa camada de CROSS-CUTTING VAI EVITAR REPLICAÇÃO
         services.AddDatabase(configuration);
         services.AddProductInventoryServices();
         

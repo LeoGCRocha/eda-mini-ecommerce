@@ -1,6 +1,6 @@
 using MediatR;
 
-namespace EdaMicroEcommerce.Api.Features.Commands.Products.CreateProduct;
+namespace Catalog.Api.CQS.Products.CreateProduct;
 
 public class CreateProductCommand : IRequest
 {
