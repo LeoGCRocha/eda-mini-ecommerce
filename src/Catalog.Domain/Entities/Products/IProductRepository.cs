@@ -6,5 +6,5 @@ public interface IProductRepository
 {
     Task AddProductAsync(Product product);
     Task<Product?> GetProductAsync(ProductId productId);
-    Task GetProductAsync(List<ProductId> productIds);
+    Task<List<Product>> GetProductsAsync(List<ProductId> productIds);
 }

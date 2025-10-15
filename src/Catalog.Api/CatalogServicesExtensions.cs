@@ -1,11 +1,15 @@
 using Catalog.Api.CQS.Products.CreateProduct;
+using Catalog.Application;
 using Catalog.Application.IntegrationEvents;
+using Catalog.Application.IntegrationEvents.Products.ProductDeactivated;
+using Catalog.Contracts.Public;
 using Catalog.Domain.Entities;
 using Catalog.Domain.Entities.InventoryItems;
 using Catalog.Domain.Entities.Products;
 using Catalog.Infra;
 using Catalog.Infra.Repositories;
 using Catalog.Infra.Services;
+using Confluent.Kafka;
 using EdaMicroEcommerce.Infra.Configuration;
 using KafkaFlow;
 using KafkaFlow.Serializer;
@@ -19,21 +23,15 @@ public static class CatalogServicesExtensions
 {
     public static IServiceCollection AddCatalog(this IServiceCollection services, IConfiguration appConfiguration)
     {
-        // <TIP> kafka-topics --delete --topic product-deactivated --bootstrap-server localhost:9092
-        var messageBrokerSection = appConfiguration.GetSection("MessageBroker");
-        var messageBroker = messageBrokerSection.Get<MessageBrokerConfiguration>();
-        if (messageBroker is null)
-            throw new Exception("O Message Broker precisa estar definido corretamente.");
-        
         services.AddDatabase(appConfiguration)
             .AddProductInventoryServices()
-            .AddMediator(appConfiguration)
-            .AddMessageBroker(messageBroker);
+            .AddMediator(appConfiguration);
         return services;
     }
     
     private static IServiceCollection AddProductInventoryServices(this IServiceCollection services)
     {
+        services.AddScoped<ICatalogApi, CatalogApi>();
         services.AddScoped<IProductInventoryService, ProductInventoryService>();
         services.AddScoped<IProductRepository, ProductRepository>();
         services.AddScoped<IInventoryItemRepository, InventoryItemRepository>();
@@ -57,32 +55,23 @@ public static class CatalogServicesExtensions
         services.AddMediatR(cfg =>
         {
             cfg.RegisterServicesFromAssembly(typeof(CreateProductCommandHandler).Assembly);
+            cfg.RegisterServicesFromAssembly(typeof(ProductDeactivatedIntegrationHandler).Assembly);
         });
 
         return services;
     }
 
-    private static IServiceCollection AddMessageBroker(this IServiceCollection services,
-        MessageBrokerConfiguration messageBrokerConfiguration)
+    public static void RegisterProducers(IDictionary<string, ProducerConfiguration> producers, MessageBrokerConfiguration messageBrokerConfiguration)
     {
         if (!messageBrokerConfiguration.Producers.TryGetValue(MessageBrokerConst.ProductDeactivatedProducer,
                 out var producerConfiguration))
             throw new ArgumentException("É esperado as configuração de producer para produto.");
         
-        services.AddKafka(kafka =>
-            kafka.UseConsoleLog()
-                .AddCluster(cluster => cluster
-                    .WithBrokers([messageBrokerConfiguration.BootstrapServers])
-                    // product-deactivated
-                    .CreateTopicIfNotExists(producerConfiguration.Topic, producerConfiguration.Partitions, producerConfiguration.ReplicaFactor)
-                    .AddProducer(MessageBrokerConst.ProductDeactivatedProducer, producer =>
-                    {
-                        producer.DefaultTopic(producerConfiguration.Topic)
-                            .AddMiddlewares(middlewares => middlewares.AddSerializer<JsonCoreSerializer>());
-                    })
-                )
-        );
-    
-        return services;
+        producers.Add(MessageBrokerConst.ProductDeactivatedProducer, new ProducerConfiguration
+        {
+            Topic = producerConfiguration.Topic,
+            ReplicaFactor = producerConfiguration.ReplicaFactor,
+            Partitions = producerConfiguration.Partitions
+        });
     }
 }

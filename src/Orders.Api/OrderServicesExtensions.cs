@@ -3,7 +3,12 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Orders.Api.CQS.CreateOrder;
+using Orders.Application;
+using Orders.Application.IntegrationEvents;
+using Orders.Application.IntegrationEvents.Orders;
+using Orders.Domain.Services;
 using Orders.Infra;
+using Orders.Infra.Services;
 
 namespace Orders.Api;
 
@@ -20,7 +25,7 @@ public static class OrderServicesExtensions
             .AddDatabase(appConfiguration)
             .AddOrdersServices(appConfiguration)
             .AddMediator(appConfiguration);
-        
+
         return services;
     }
 
@@ -28,27 +33,44 @@ public static class OrderServicesExtensions
     {
         services.AddDbContext<OrderContext>(options =>
             options.UseNpgsql(appConfiguration.GetConnectionString("DefaultConnection"))
-                .UseSnakeCaseNamingConvention());
-        // TODO: Add domain event interceptor
-                // .AddInterceptors(new DomainEventsInterceptor()));
-        
+                .UseSnakeCaseNamingConvention()
+                .AddInterceptors(new DomainEventsInterceptor()));
+
         AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
-        
+
         return services;
     }
-    
+
     private static IServiceCollection AddOrdersServices(this IServiceCollection services, IConfiguration configuration)
     {
+        services.AddScoped<IOrderService, OrderService>();
+
         return services;
     }
-    
+
     private static IServiceCollection AddMediator(this IServiceCollection services, IConfiguration appConfiguration)
     {
         services.AddMediatR(cfg =>
         {
             cfg.RegisterServicesFromAssembly(typeof(CreateOrderCommandHandler).Assembly);
+            cfg.RegisterServicesFromAssembly(typeof(OrderCreatedIntegrationHandler).Assembly);
         });
-        
+
         return services;
+    }
+
+    public static void RegisterProducers(IDictionary<string, ProducerConfiguration> producers,
+        MessageBrokerConfiguration messageBrokerConfiguration)
+    {
+        if (!messageBrokerConfiguration.Producers.TryGetValue(MessageBrokerConst.OrderCreatedProducer,
+                out var producerConfiguration))
+            throw new ArgumentException("É esperado as configuração de producer para pedido.");
+
+        producers.Add(MessageBrokerConst.OrderCreatedProducer, new ProducerConfiguration
+        {
+            Topic = producerConfiguration.Topic,
+            ReplicaFactor = producerConfiguration.ReplicaFactor,
+            Partitions = producerConfiguration.Partitions
+        });
     }
 }

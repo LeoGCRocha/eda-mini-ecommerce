@@ -1,11 +1,13 @@
 using Carter;
-using Catalog.Api;
-using Catalog.Infra;
 using Catalog.Infra.Outbox;
 using EdaMicroEcommerce.Infra.Configuration;
 using EdaMicroEcommerce.Api.Extensions;
-using CatalogOutboxWorker = EdaMicroEcommerce.Application.Outbox;
+using EdaMicroEcommerce.Application.Outbox;
+using EdaMicroEcommerce.Domain.BuildingBlocks;
 using EdaMicroEcommerce.Infra.MessageBroker;
+using Microsoft.AspNetCore.Diagnostics;
+using Microsoft.AspNetCore.Mvc;
+using Orders.Infra.Outbox;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -21,7 +23,7 @@ services.AddCarter();
 var appConfiguration = builder.Configuration;
 
 // TODO: Add schema registry
-services.AddScoped<CatalogOutboxWorker.IIntegrationEventPublisher, IntegrationEventPublisher>();
+services.AddScoped<IIntegrationEventPublisher, IntegrationEventPublisher>();
 
 // <TIP> kafka-topics --delete --topic product-deactivated --bootstrap-server localhost:9092
 var messageBrokerSection = builder.Configuration.GetSection("MessageBroker");
@@ -32,12 +34,42 @@ if (messageBroker is null)
 services
     .AddModulesServices(appConfiguration);
 
-services
-    .AddCatalog(appConfiguration);
-
-services.AddHostedService<OutboxWorker>();
+services.AddHostedService<CatalogOutboxWorker>();
+services.AddHostedService<OrderOutboxWorker>();
 
 var app = builder.Build();
+
+app.UseExceptionHandler(exceptHandler =>
+{
+    exceptHandler.Run(async context =>
+    {
+        context.Response.ContentType = "application/problem+json";
+        
+        var exceptionHandlerPathFeature = context.Features.Get<IExceptionHandlerPathFeature>();
+
+        if (exceptionHandlerPathFeature?.Error is Exception ex)
+        {
+            ProblemDetails problemDetails = new ProblemDetails()
+            {
+                Type = ex.GetType().Name,
+                Status = StatusCodes.Status500InternalServerError,
+                Title = "Ocorreu um erro inesperado",
+                Detail = ex.Message,
+                Instance = exceptionHandlerPathFeature.Path
+            };
+
+            if (ex is DomainException or GenericException)
+            {
+                problemDetails.Type = ex.GetType().Name;
+                problemDetails.Status = StatusCodes.Status500InternalServerError;
+            }
+
+            context.Response.StatusCode = problemDetails.Status.GetValueOrDefault();
+            
+            await context.Response.WriteAsJsonAsync(problemDetails);
+        }
+    });
+});
 
 if (app.Environment.IsDevelopment())
 {

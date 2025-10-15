@@ -27,7 +27,7 @@ var host = Host.CreateDefaultBuilder(args)
         if (messageBroker is null)
             throw new Exception("O Message Broker precisa estar definido corretamente.");
 
-        if (!messageBroker.Consumers.TryGetValue(MessageBrokerConst.ProductDeactivatedCosnumer,
+        if (!messageBroker.Consumers.TryGetValue(MessageBrokerConst.ProductDeactivatedConsumer,
                 out var consumerConfiguration))
             throw new ArgumentException("É esperado as configuração de consumer para produto.");
 

@@ -1,34 +1,32 @@
-using Catalog.Application.IntegrationEvents;
-using Catalog.Application.IntegrationEvents.Products.ProductDeactivated;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Orders.Application.IntegrationEvents;
+using Orders.Application.IntegrationEvents.Orders;
 
-namespace Catalog.Infra.Outbox;
+namespace Orders.Infra.Outbox;
 
-public class OutboxWorker(IServiceProvider serviceProvider, ILogger<OutboxWorker> logger)
+public class OrderOutboxWorker(IServiceProvider serviceProvider, ILogger<OrderOutboxWorker> logger)
     : BackgroundService
 {
     private const int MaxBatchSize = 1000;
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        logger.LogInformation($"{nameof(OutboxWorker)} started execution.");
+        logger.LogInformation($"{nameof(OrderOutboxWorker)} started execution.");
         while (!stoppingToken.IsCancellationRequested)
         {
             // <WARNING> Temos um possível problema aqui no OUTBOX que é se for modificado o nome da classe o outbox ficaria perdido
             // para encontrar a respectiva implementação
 
             // TODO: Adicionar SCHEMA REGISTRY
-            // TODO: Make some tests
             using var scope = serviceProvider.CreateScope();
-            var dbContext = scope.ServiceProvider.GetRequiredService<CatalogContext>();
+            var dbContext = scope.ServiceProvider.GetRequiredService<OrderContext>();
             var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
 
-            // TODO: Acessar isso via ef talvez não seja o melhor caminho.... por que esta possibilitando qualquer um acessar
-            // TODO: Talvez o melhor aqui seja mudar pro dapper
+            // <WARNING> Talvez isso aqui não deveria estar externalizado via EF e sim acesso via query diretamente.
             var integrationEvents = await dbContext.OutboxIntegrationEvents
                 .Where(p => p.ProcessedAtUtc == null && !p.IsDeadLetter)
                 .OrderBy(p => p.CreatedAtUtc).Take(MaxBatchSize)
@@ -43,12 +41,11 @@ public class OutboxWorker(IServiceProvider serviceProvider, ILogger<OutboxWorker
                 // at least once guarantee
                 try
                 {
-                    // TODO: Passar a parte a baixo para um lugar que faça mais sentido
                     switch (@event.Type)
                     {
-                        case EventType.ProductDeactivated:
+                        case EventType.OrderCreated:
                             await mediator.Send(
-                                new ProductDeactivatedIntegration(EventType.ProductDeactivated, @event.Payload), ct);
+                                new OrderCreatedIntegration(EventType.OrderCreated, @event.Payload), ct);
                             break;
                         default:
                             throw new ArgumentException("Tipo inesperado para EventType");
@@ -58,8 +55,8 @@ public class OutboxWorker(IServiceProvider serviceProvider, ILogger<OutboxWorker
                 }
                 catch (Exception ex)
                 {
-                    // <WARNING> Aqui tem um problema no código que não sei exatamente o erro que deu no outbox pode ser ruim para 
-                    // rastreabilidade dos erros
+                    // <WARNING> Aqui temos um problema na forma que o OUTBOX foi estruturado onde não existe um contexto
+                    // especifico do erro, ou seja, dificultando tratamentos mais especificos pra uma mensagem.
                     logger.LogError(ex, "Message cannot be published");
                     @event.UpdateRetryCount();
 

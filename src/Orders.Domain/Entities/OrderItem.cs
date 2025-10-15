@@ -1,3 +1,4 @@
+using Orders.Domain.Entities.Exceptions;
 using EdaMicroEcommerce.Domain.BuildingBlocks;
 using EdaMicroEcommerce.Domain.BuildingBlocks.StronglyTyped;
 
@@ -16,8 +17,7 @@ public class OrderItem : Entity<OrderItemId>
         UnitPrice = unitPrice;
 
         if (Quantity <= 0)
-            // TODO: Domain exception
-            throw new Exception("");
+            throw new InvalidQuantityException("Quantidade precisa maior que zero.");
     }
 
     public decimal Total()

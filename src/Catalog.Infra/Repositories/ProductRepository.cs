@@ -24,8 +24,8 @@ public class ProductRepository : IProductRepository
         return product;
     }
 
-    public Task GetProductAsync(List<ProductId> productIds)
+    public Task<List<Product>> GetProductsAsync(List<ProductId> productIds)
     {
-        throw new NotImplementedException();
+        return _context.Products.Where(prod => productIds.Contains(prod.Id)).ToListAsync();
     }
 }

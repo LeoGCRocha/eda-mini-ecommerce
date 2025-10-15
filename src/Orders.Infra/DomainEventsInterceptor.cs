@@ -1,20 +1,23 @@
-using Catalog.Application.IntegrationEvents;
-using Catalog.Application.IntegrationEvents.Products;
-using Catalog.Domain.Entities.Products.Events;
+using Orders.Application.IntegrationEvents;
+using Orders.Domain.Entities.Events;
+
+namespace Orders.Infra;
+
 using EdaMicroEcommerce.Application.Outbox;
 using EdaMicroEcommerce.Domain.BuildingBlocks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 
-namespace Catalog.Infra;
 
 public class DomainEventsInterceptor : SaveChangesInterceptor
 {
     // <WARNING> Toda essa estrutura modular do OUTBOX ficou mal implementada de uma forma 
     // que a abstração e a generalização esta ruim, exigindo uma repetição de codigo
+    // Acoplar IRequest na Entidade também fez o código ficar mal organizado, deveria ter pensando a mensagem e a entidade de outbox
+    // como objetos distintos
     private readonly Dictionary<Type, Func<IDomainEvent, OutboxIntegrationEvent<EventType>>> _factoryDictionary = new()
     {
-        { typeof(ProductDeactivatedEvent), e => ProductIntegrationFactory.FromDomain((ProductDeactivatedEvent)e) }
+        { typeof(OrderCreatedEvent), e => OrderIntegrationFactory.FromDomain((OrderCreatedEvent) e)  }
     };
 
     public override InterceptionResult<int> SavingChanges(DbContextEventData eventData,

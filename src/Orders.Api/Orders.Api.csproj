@@ -12,6 +12,8 @@
     </ItemGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\Catalog.Api\Catalog.Api.csproj" />
+      <ProjectReference Include="..\Catalog.Contracts\Catalog.Contracts.csproj" />
       <ProjectReference Include="..\Orders.Infra\Orders.Infra.csproj" />
       <ProjectReference Include="..\Plataform.Infra\Plataform.Infra.csproj" />
     </ItemGroup>

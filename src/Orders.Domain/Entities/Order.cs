@@ -55,9 +55,6 @@ public class Order : AggregateRoot<OrderId>
 
     public void RemoveOrderItemWithProductId(ProductId productId, string reason)
     {
-        // TODO: Criar diagrama representando esse evento
-        // TODO: Envia pro usuário dizendo que order foi modificado devido X, ele deve confirmar
-        // TODO: Mudar isso pra um metodo único
         Status = OrderStatus.Draft;
         var foundedProduct = _orderItems.FirstOrDefault(oe => oe.ProductId == productId);
         if (foundedProduct is not null)
@@ -77,7 +74,6 @@ public class Order : AggregateRoot<OrderId>
     
     public void CancelOrder(string reason)
     {
-        // TODO: Adicionar diagrama representando esse evento
         ChangeStatus(OrderStatus.Canceled);
         AddDomainEvent(new OrderCanceledEvent(Id, reason));
     }
