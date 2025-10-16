@@ -3,7 +3,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Orders.Api.CQS.CreateOrder;
-using Orders.Application;
 using Orders.Application.IntegrationEvents;
 using Orders.Application.IntegrationEvents.Orders;
 using Orders.Domain.Services;
@@ -66,11 +65,23 @@ public static class OrderServicesExtensions
                 out var producerConfiguration))
             throw new ArgumentException("É esperado as configuração de producer para pedido.");
 
+        if (!messageBrokerConfiguration.Producers.TryGetValue(MessageBrokerConst.ProductReservationProducer,
+                out var productConfiguration))
+            throw new ArgumentException("É esperado a configuração de producer para produtos.");
+
         producers.Add(MessageBrokerConst.OrderCreatedProducer, new ProducerConfiguration
         {
             Topic = producerConfiguration.Topic,
             ReplicaFactor = producerConfiguration.ReplicaFactor,
             Partitions = producerConfiguration.Partitions
+        });
+        
+        // TODO: SUBIU COM APENAS UMA PARTIÇÃO
+        producers.Add(MessageBrokerConst.ProductReservationProducer, new ProducerConfiguration()
+        {
+            Topic = productConfiguration.Topic,
+            ReplicaFactor = productConfiguration.ReplicaFactor,
+            Partitions = productConfiguration.Partitions
         });
     }
 }

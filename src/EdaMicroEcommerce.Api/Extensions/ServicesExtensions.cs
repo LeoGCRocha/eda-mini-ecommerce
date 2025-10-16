@@ -59,8 +59,8 @@ public static class ServicesExtensions
                                         // TODO: Deixar configurações menos genericas
                                         .WithProducerConfig(new ProducerConfig()
                                         {
-                                            EnableIdempotence = true, // TODO: Essa configuração não faz sentido pra todos, os que recebem muita mensagem
-                                            // E podem lidar de boas com replicação não precis disso
+                                            EnableIdempotence = true, // So garante indepo. em caso de retry, não garante pra se o broker reiniciar
+                                                                      // e/ou se tiver falha no outbox
                                             Acks = Acks.Leader,
                                             LingerMs = 5,
                                             BatchNumMessages = 5000,

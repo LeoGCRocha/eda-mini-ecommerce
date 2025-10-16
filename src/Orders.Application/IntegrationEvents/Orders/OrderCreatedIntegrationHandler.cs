@@ -1,7 +1,7 @@
-using System.Text.Json;
-using EdaMicroEcommerce.Application.Outbox;
 using MediatR;
+using System.Text.Json;
 using Orders.Domain.Entities.Events;
+using EdaMicroEcommerce.Application.Outbox;
 
 namespace Orders.Application.IntegrationEvents.Orders;
 

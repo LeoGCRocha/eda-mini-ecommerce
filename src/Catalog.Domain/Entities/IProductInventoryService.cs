@@ -9,5 +9,6 @@ public interface IProductInventoryService
     Task CreateProductAndInventoryAsync(Product product, int availableQuantity, int reorderQuantity);
     Task DeactivateProductAsync(ProductId productId);
     Task DeactivateProductOnInventoryAsync(ProductId productId);
-    Task<List<ProductAvailabilityResponse>> HasAvailabilityForProduct(Dictionary<ProductId, int> productsWithDesiredQuantity);
+    Task<List<ProductAvailabilityResponse>> HasAvailabilityForProduct(Dictionary<ProductId, int> productsWithQuantity);
+    Task<bool> ReserveProductIfAvailable(ProductId productId, int quantity);
 }

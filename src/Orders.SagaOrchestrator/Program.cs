@@ -1,14 +1,15 @@
-﻿using KafkaFlow;
+﻿using EdaMicroEcommerce.Infra.Configuration;
+using KafkaFlow;
+using KafkaFlow.Serializer;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Configuration;
-using Catalog.Application.IntegrationEvents;
-using EcaMicroEcommerce.ProductWorker;
 using Microsoft.Extensions.DependencyInjection;
-using EcaMicroEcommerce.ProductWorker.IntegrationsEvent.ProductDeactivated;
-using EcaMicroEcommerce.ProductWorker.IntegrationsEvent.ProductReservationHandler;
-using EdaMicroEcommerce.Infra.Configuration;
-using KafkaFlow.Serializer;
+using Orders.Application.IntegrationEvents;
+using Orders.Application.Saga;
+using Orders.Infra;
+using Orders.Saga;
+using Orders.Saga.IntegrationEvents;
 
 var host = Host.CreateDefaultBuilder(args)
     .ConfigureServices((hostContext, services) =>
@@ -17,7 +18,8 @@ var host = Host.CreateDefaultBuilder(args)
 
         services.AddLogging(configure => configure.AddConsole());
         services.AddDatabase(configuration);
-        services.AddProductInventoryServices();
+
+        services.AddScoped<ISagaOrchestrator, SagaOrchestrator>();
         
         AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
         
@@ -28,7 +30,7 @@ var host = Host.CreateDefaultBuilder(args)
         if (messageBroker is null)
             throw new Exception("O Message Broker precisa estar definido corretamente.");
 
-        if (!messageBroker.Consumers.TryGetValue(MessageBrokerConst.ProductDeactivatedConsumer,
+        if (!messageBroker.Consumers.TryGetValue(MessageBrokerConst.OrderCreatedConsumer,
                 out var consumerConfiguration))
             throw new ArgumentException("É esperado as configuração de consumer para produto.");
 
@@ -57,7 +59,7 @@ var host = Host.CreateDefaultBuilder(args)
                             middlewares.AddTypedHandlers(handlers =>
                             {
                                 handlers.WithHandlerLifetime(InstanceLifetime.Scoped);
-                                handlers.AddHandler<ProductDeactivatedMessageHandler>();
+                                handlers.AddHandler<OrderCreatedMessageHandler>();
                                 handlers.WhenNoHandlerFound(context =>
                                 {
                                     Console.WriteLine("Mensagem não gerenciada > Partição {0} | Offset {1}",
@@ -66,27 +68,7 @@ var host = Host.CreateDefaultBuilder(args)
                                 });
                             });
                         });
-                    })
-                    .AddConsumer(consumer =>
-                    {
-                        consumer.Topic(consumerConfiguration.Topic);
-                        consumer.WithGroupId(consumerConfiguration.GroupId);
-                        consumer.WithWorkersCount(1);
-                        consumer.WithBufferSize(100);
-                        consumer.WithAutoOffsetReset(AutoOffsetReset.Earliest);
-
-                        consumer.AddMiddlewares(middlewares =>
-                        {
-                            middlewares.AddDeserializer<JsonCoreDeserializer>();
-
-                            middlewares.AddTypedHandlers(handlers =>
-                            {
-                                handlers.WithHandlerLifetime(InstanceLifetime.Scoped);
-                                handlers.AddHandler<ProductReservationHandler>();
-                            });
-                        });
-                    })
-                );
+                    }));
         });
     }).Build();
 

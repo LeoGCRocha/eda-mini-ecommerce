@@ -2,6 +2,7 @@ using Catalog.Contracts.DTOs;
 using Catalog.Domain.Entities;
 using Catalog.Domain.Entities.InventoryItems;
 using Catalog.Domain.Entities.Products;
+using EdaMicroEcommerce.Domain.BuildingBlocks;
 using EdaMicroEcommerce.Domain.BuildingBlocks.StronglyTyped;
 using Microsoft.EntityFrameworkCore;
 
@@ -55,10 +56,10 @@ public class ProductInventoryService(
         await context.SaveChangesAsync();
     }
 
-    public async Task<List<ProductAvailabilityResponse>> HasAvailabilityForProduct(Dictionary<ProductId, int> productWithDesireQuantity)
+    public async Task<List<ProductAvailabilityResponse>> HasAvailabilityForProduct(Dictionary<ProductId, int> productsWithQuantity)
     {
         // <COMMENT> Usando essa abordagem para evitar a necessidade de duas round trips no banco.
-        var productIdsString = string.Join(",", productWithDesireQuantity.Keys.Select(id => $"'{id.Value}'"));
+        var productIdsString = string.Join(",", productsWithQuantity.Keys.Select(id => $"'{id.Value}'"));
         
         var sql = $@"
         SELECT P.id as product_id, 
@@ -73,10 +74,27 @@ public class ProductInventoryService(
 
         return result.Select(r => new ProductAvailabilityResponse(
             r.ProductId,
-            r.AvailableQuantity > productWithDesireQuantity[new ProductId(r.ProductId)],
+            r.AvailableQuantity > productsWithQuantity[new ProductId(r.ProductId)],
             r.AvailableQuantity,
             r.UnitPrice
         )).ToList();
+    }
+
+    public async Task<bool> ReserveProductIfAvailable(ProductId productId, int quantity)
+    {
+        var inventoryItem = await inventoryItemRepository.GetInventoryItemByProductId(productId);
+        if (inventoryItem is null)
+            throw new GenericException("Não foi possível encontrar o item associado ao produto.");
+        
+        try
+        {
+            inventoryItem.ReserveQuantity(quantity);
+            return true;
+        }
+        catch (Exception)
+        {
+            return false;
+        }
     }
 
     private class ProductWithAvailableAndPrice

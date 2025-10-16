@@ -5,6 +5,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Orders.Application.IntegrationEvents;
 using Orders.Application.IntegrationEvents.Orders;
+using Orders.Application.IntegrationEvents.Products;
 
 namespace Orders.Infra.Outbox;
 
@@ -46,6 +47,11 @@ public class OrderOutboxWorker(IServiceProvider serviceProvider, ILogger<OrderOu
                         case EventType.OrderCreated:
                             await mediator.Send(
                                 new OrderCreatedIntegration(EventType.OrderCreated, @event.Payload), ct);
+                            break;
+                        // TODO: Melhorar a questão aqui que os eventos estão em mais de um lugar como lidariamos com isso ???
+                        case EventType.ProductReservation:
+                            await mediator.Send(
+                                new ProductReservationIntegration(EventType.ProductReservation, @event.Payload), ct);
                             break;
                         default:
                             throw new ArgumentException("Tipo inesperado para EventType");
