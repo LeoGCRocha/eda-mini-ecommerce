@@ -1,5 +1,6 @@
 using Catalog.Application.IntegrationEvents;
 using Catalog.Application.IntegrationEvents.Products;
+using Catalog.Domain.Entities.InventoryItems.Events;
 using Catalog.Domain.Entities.Products.Events;
 using EdaMicroEcommerce.Application.Outbox;
 using EdaMicroEcommerce.Domain.BuildingBlocks;
@@ -14,7 +15,8 @@ public class DomainEventsInterceptor : SaveChangesInterceptor
     // que a abstração e a generalização esta ruim, exigindo uma repetição de codigo
     private readonly Dictionary<Type, Func<IDomainEvent, OutboxIntegrationEvent<EventType>>> _factoryDictionary = new()
     {
-        { typeof(ProductDeactivatedEvent), e => ProductIntegrationFactory.FromDomain((ProductDeactivatedEvent)e) }
+        { typeof(ProductDeactivatedEvent), e => ProductIntegrationFactory.FromDomain((ProductDeactivatedEvent)e) },
+        { typeof(ProductReservedEvent), e => ProductIntegrationFactory.FromDomain((ProductReservedEvent) e) }
     };
 
     public override InterceptionResult<int> SavingChanges(DbContextEventData eventData,

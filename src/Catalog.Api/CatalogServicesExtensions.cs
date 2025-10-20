@@ -67,11 +67,22 @@ public static class CatalogServicesExtensions
                 out var producerConfiguration))
             throw new ArgumentException("É esperado as configuração de producer para produto.");
         
+        if (!messageBrokerConfiguration.Producers.TryGetValue(MessageBrokerConst.ProductReservedProducer,
+                out var producerReservedConfiguration))
+            throw new ArgumentException("É esperado as configuração de producer para a reserva de produto.");
+        
         producers.Add(MessageBrokerConst.ProductDeactivatedProducer, new ProducerConfiguration
         {
             Topic = producerConfiguration.Topic,
             ReplicaFactor = producerConfiguration.ReplicaFactor,
             Partitions = producerConfiguration.Partitions
+        });
+                
+        producers.Add(MessageBrokerConst.ProductReservedProducer, new ProducerConfiguration
+        {
+            Topic = producerReservedConfiguration.Topic,
+            ReplicaFactor = producerReservedConfiguration.ReplicaFactor,
+            Partitions = producerReservedConfiguration.Partitions
         });
     }
 }

@@ -14,11 +14,9 @@ public class ProductDeactivatedIntegrationHandler : IRequestHandler<ProductDeact
         _eventPublisher = eventPublisher;
     }
 
-    public Task Handle(ProductDeactivatedIntegration request, CancellationToken cancellationToken)
+    public async Task Handle(ProductDeactivatedIntegration request, CancellationToken cancellationToken)
     {
         var @object = JsonSerializer.Deserialize<ProductDeactivatedEvent>(request.Payload);
-        _eventPublisher.PublishOnTopicAsync(@object, MessageBrokerConst.ProductDeactivatedProducer, null);
-        
-        return Task.CompletedTask;
+        await _eventPublisher.PublishOnTopicAsync(@object, MessageBrokerConst.ProductDeactivatedProducer, null);
     }
 }

@@ -89,6 +89,7 @@ public class ProductInventoryService(
         try
         {
             inventoryItem.ReserveQuantity(quantity);
+            await context.SaveChangesAsync();
             return true;
         }
         catch (Exception)

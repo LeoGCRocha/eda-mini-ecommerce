@@ -47,6 +47,9 @@ public class CatalogOutboxWorker(IServiceProvider serviceProvider, ILogger<Catal
                             await mediator.Send(
                                 new ProductDeactivatedIntegration(EventType.ProductDeactivated, @event.Payload), ct);
                             break;
+                        case EventType.ProductReserved:
+                            await mediator.Send(new ProductReservedIntegration(EventType.ProductReserved, @event.Payload), ct);
+                            break;
                         default:
                             throw new ArgumentException("Tipo inesperado para EventType");
                     }
@@ -66,7 +69,7 @@ public class CatalogOutboxWorker(IServiceProvider serviceProvider, ILogger<Catal
             });
 
             await dbContext.SaveChangesAsync(stoppingToken);
-            await Task.Delay(TimeSpan.FromSeconds(30), stoppingToken);
+            await Task.Delay(TimeSpan.FromSeconds(5), stoppingToken);
         }
     }
 }
