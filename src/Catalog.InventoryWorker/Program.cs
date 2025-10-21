@@ -42,38 +42,41 @@ var host = Host.CreateDefaultBuilder(args)
 
         services.AddKafkaFlowHostedService(kafka =>
         {
+            // <WARNING> Em termos práticos fiz tudo com auto commit habilitado, mas pode não ser a melhor pratica num
+            // sistema real
             kafka.UseMicrosoftLog();
             kafka.AddCluster(cluster =>
                 cluster.WithBrokers([messageBroker.BootstrapServers])
-                    // .AddConsumer(consumer =>
-                    // {
-                    //     consumer.Topic(productDeactivatedConsumer.Topic);
-                    //     consumer.WithGroupId(productDeactivatedConsumer
-                    //         .GroupId); // Consumer group usado para definir o recebimento de mensagem
-                    //     // TRAZER ISSO PARA AS CONFIGURAÇÕES
-                    //     consumer.WithWorkersCount(
-                    //         1); // Quantidade de threads paralelas que processam, obs, cada thread so obtem dados da mesma partição
-                    //     consumer.WithBufferSize(
-                    //         100); // Define o tamanho da fila interna (buffer) de mensagens que o KafkaFlow mantém
-                    //     consumer.WithAutoOffsetReset(AutoOffsetReset
-                    //         .Earliest); // Recebe mensagens do início do log de offset disponivel
-                    //     
-                    //     // TODO: Adicionar um consumo em BATCH EM ALGUM LUGAR QUE FAÇA SENTIDO PRA ESTRESSAR A LIB
-                    //     consumer.AddMiddlewares(middlewares =>
-                    //     {
-                    //         middlewares.AddDeserializer<JsonCoreDeserializer>();
-                    //         middlewares.AddTypedHandlers(handlers =>
-                    //         {
-                    //             handlers.AddHandler<ProductDeactivatedMessageHandler>();
-                    //             handlers.WhenNoHandlerFound(context =>
-                    //             {
-                    //                 Console.WriteLine("Mensagem não gerenciada > Partição {0} | Offset {1}",
-                    //                     context.ConsumerContext.Partition,
-                    //                     context.ConsumerContext.Offset);
-                    //             });
-                    //         });
-                    //     });
-                    // })
+                    .AddConsumer(consumer =>
+                    {
+                        // TODO: Adicionar isso aqui no SAGA....
+                        consumer.Topic(productDeactivatedConsumer.Topic);
+                        consumer.WithGroupId(productDeactivatedConsumer
+                            .GroupId); // Consumer group usado para definir o recebimento de mensagem
+                        // TRAZER ISSO PARA AS CONFIGURAÇÕES
+                        consumer.WithWorkersCount(
+                            1); // Quantidade de threads paralelas que processam, obs, cada thread so obtem dados da mesma partição
+                        consumer.WithBufferSize(
+                            100); // Define o tamanho da fila interna (buffer) de mensagens que o KafkaFlow mantém
+                        consumer.WithAutoOffsetReset(AutoOffsetReset
+                            .Earliest); // Recebe mensagens do início do log de offset disponivel
+                        
+                        // TODO: Adicionar um consumo em BATCH EM ALGUM LUGAR QUE FAÇA SENTIDO PRA ESTRESSAR A LIB
+                        consumer.AddMiddlewares(middlewares =>
+                        {
+                            middlewares.AddDeserializer<JsonCoreDeserializer>();
+                            middlewares.AddTypedHandlers(handlers =>
+                            {
+                                handlers.AddHandler<ProductDeactivatedMessageHandler>();
+                                handlers.WhenNoHandlerFound(context =>
+                                {
+                                    Console.WriteLine("Mensagem não gerenciada > Partição {0} | Offset {1}",
+                                        context.ConsumerContext.Partition,
+                                        context.ConsumerContext.Offset);
+                                });
+                            });
+                        });
+                    })
                     .AddConsumer(consumer =>
                     {
                         consumer.Topic(productReservationConsumer.Topic);
@@ -87,7 +90,6 @@ var host = Host.CreateDefaultBuilder(args)
                            // <WARNING> Tive problemas com o JSON CORE DESERIALIZER 
                            middlewares.Add<ProductReservationMiddleware>();
                         });
-
                     })
                 );
         });

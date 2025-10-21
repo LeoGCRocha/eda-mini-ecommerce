@@ -5,5 +5,5 @@ public enum EventType
     // <ORDER CREATED>
     OrderCreated = 1,
     // <PRODUCT RESERVATION>
-    ProductReservation = 2
+    ProductReservation = 2,
 }

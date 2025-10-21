@@ -1,8 +1,8 @@
+using KafkaFlow;
 using System.Text.Json;
 using Catalog.Domain.Entities;
-using EcaMicroEcommerce.ProductWorker.IntegrationsEvent.ProductReservationHandler;
-using KafkaFlow;
 using Microsoft.Extensions.Logging;
+using EcaMicroEcommerce.ProductWorker.IntegrationsEvent.ProductReservationHandler;
 
 namespace EcaMicroEcommerce.ProductWorker;
 

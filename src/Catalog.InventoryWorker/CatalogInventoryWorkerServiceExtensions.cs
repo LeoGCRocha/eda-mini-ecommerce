@@ -1,7 +1,7 @@
+using Catalog.Infra;
 using Catalog.Domain.Entities;
 using Catalog.Domain.Entities.InventoryItems;
 using Catalog.Domain.Entities.Products;
-using Catalog.Infra;
 using Catalog.Infra.Repositories;
 using Catalog.Infra.Services;
 using Microsoft.EntityFrameworkCore;

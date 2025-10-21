@@ -48,7 +48,6 @@ public class OrderOutboxWorker(IServiceProvider serviceProvider, ILogger<OrderOu
                             await mediator.Send(
                                 new OrderCreatedIntegration(EventType.OrderCreated, @event.Payload), ct);
                             break;
-                        // TODO: Melhorar a questão aqui que os eventos estão em mais de um lugar como lidariamos com isso ???
                         case EventType.ProductReservation:
                             await mediator.Send(
                                 new ProductReservationIntegration(EventType.ProductReservation, @event.Payload), ct);

@@ -31,7 +31,7 @@ public class Order : AggregateRoot<OrderId>
         foreach (var orderItem in orderItems)
             AddOrderItem(orderItem);
         ApplyDiscount(discountAmount);
-        Status = OrderStatus.Created;
+        Status = OrderStatus.CREATED;
         AddDomainEvent(new OrderCreatedEvent(Id,
             _orderItems.Select(oe => new ProductOrderInfo(oe.ProductId, oe.Quantity)).ToList()));
     }
@@ -40,7 +40,7 @@ public class Order : AggregateRoot<OrderId>
     {
         var firstOrDefault = _orderItems.FirstOrDefault(currOrderItem => currOrderItem.Id == orderItem.Id);
         if (firstOrDefault is not null)
-            throw new TryAddingOrderItemException("An order item cannot be added twice.");
+            throw new TryAddingOrderItemException("Um item não pode ser adicionado duas vezes a um pedido.");
         _orderItems.Add(orderItem);
         TotalAmount += orderItem.Total();
     }
@@ -52,39 +52,20 @@ public class Order : AggregateRoot<OrderId>
         NetAmount = TotalAmount - discountAmount;
         DiscountAmount = discountAmount;
     }
-
-    public void RemoveOrderItemWithProductId(ProductId productId, string reason)
-    {
-        Status = OrderStatus.Draft;
-        var foundedProduct = _orderItems.FirstOrDefault(oe => oe.ProductId == productId);
-        if (foundedProduct is not null)
-            _orderItems.Remove(foundedProduct);
-        if (foundedProduct is null)
-            throw new ProductNotFoundException($"Produto com ID {productId.Value} não esta definido no pedido.");
-        TotalAmount -= foundedProduct.Total();
-        if (TotalAmount <= 0 || _orderItems.Count == 0)
-        {
-            // TODO: Enviar pro usuario dizendo que foi cancelado, alterar SAGA
-            Status = OrderStatus.Canceled;
-            AddDomainEvent(new OrderCanceledEvent(Id, reason));
-        }
-        AddDomainEvent(new OrderItemRemovedEvent(Id, productId, reason));
-    }
-
     
     public void CancelOrder(string reason)
     {
-        ChangeStatus(OrderStatus.Canceled);
+        ChangeStatus(OrderStatus.CANCELED);
         AddDomainEvent(new OrderCanceledEvent(Id, reason));
     }
 
-    private void ChangeStatus(OrderStatus newStatus)
+    public void ChangeStatus(OrderStatus newStatus)
     {
         Status = Status switch
         {
-            OrderStatus.Canceled => throw new InvalidStatusChangeException(
+            OrderStatus.CANCELED => throw new InvalidStatusChangeException(
                 "Pedido não pode mudar de status apos cancelado."),
-            OrderStatus.Paid => throw new InvalidStatusChangeException(
+            OrderStatus.PAID => throw new InvalidStatusChangeException(
                 "Pedido não pode mudar de estado apos confirmado."),
             _ => newStatus
         };

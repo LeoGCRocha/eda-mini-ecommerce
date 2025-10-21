@@ -27,6 +27,7 @@ public class DomainEventsInterceptor : SaveChangesInterceptor
 
     public override ValueTask<InterceptionResult<int>> SavingChangesAsync(DbContextEventData eventData,
         InterceptionResult<int> result,
+        // TODO: Lidar melhor com cancellation tokens
         CancellationToken cancellationToken = new CancellationToken())
     {
         var context = eventData.Context;
@@ -37,7 +38,7 @@ public class DomainEventsInterceptor : SaveChangesInterceptor
         var outbox = context.Set<OutboxIntegrationEvent<EventType>>();
 
         var entries = context!.ChangeTracker.Entries()
-            .Where(evt => evt.State is EntityState.Added or EntityState.Modified)
+            .Where(evt => evt.State is EntityState.Added or EntityState.Modified or EntityState.Unchanged)
             .Select(e => e.Entity);
 
         var entriesAggregate = entries.OfType<IAggregateRoot>().ToList();

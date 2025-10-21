@@ -6,20 +6,30 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Orders.Application.IntegrationEvents;
+using Orders.Application.Repositories;
 using Orders.Application.Saga;
+using Orders.Application.Saga.States;
+using Orders.Domain.Entities.Events;
 using Orders.Infra;
+using Orders.Infra.Repository;
 using Orders.Saga;
 using Orders.Saga.IntegrationEvents;
 
 var host = Host.CreateDefaultBuilder(args)
     .ConfigureServices((hostContext, services) =>
     {
+        // TODO: Agrupar mesmo ID em uma unica request pra não precisar mandar uma mensagem a mais pro broker...
         var configuration = hostContext.Configuration;
 
         services.AddLogging(configure => configure.AddConsole());
         services.AddDatabase(configuration);
 
+        services.AddSingleton<ISagaStateHandlerFactory, StateHandlerFactory>();
+        services.AddScoped<ISagaStateHandler<OrderCreatedEvent>, OrderCreatedState>();
+        services.AddScoped<ISagaStateHandler<ProductReservedEvent>, ProductReservedState>();
         services.AddScoped<ISagaOrchestrator, SagaOrchestrator>();
+        services.AddScoped<ISagaRepository, SagaRepository>();
+        services.AddScoped<IOrderRepository, OrderRepository>();
         
         AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
         
@@ -33,9 +43,14 @@ var host = Host.CreateDefaultBuilder(args)
         if (!messageBroker.Consumers.TryGetValue(MessageBrokerConst.OrderCreatedConsumer,
                 out var consumerConfiguration))
             throw new ArgumentException("É esperado as configuração de consumer para produto.");
+        
+        if (!messageBroker.Consumers.TryGetValue(MessageBrokerConst.ProductReservedConsumer,
+                out var productReservedConsumer))
+            throw new ArgumentException("É esperado as configuração de consumer para consume de reservas.");
 
         services.AddKafkaFlowHostedService(kafka =>
         {
+            // TODO: Ao dar erro ele ta consumindo a mensagem ainda assim
             kafka.UseMicrosoftLog();
             kafka.AddCluster(cluster =>
                 cluster.WithBrokers([messageBroker.BootstrapServers])
@@ -68,7 +83,28 @@ var host = Host.CreateDefaultBuilder(args)
                                 });
                             });
                         });
-                    }));
+                        
+                    })
+                    .AddConsumer(consumer =>
+                    {
+                        consumer.Topic(productReservedConsumer.Topic);
+                        consumer.WithGroupId(productReservedConsumer
+                            .GroupId); // Consumer group usado para definir o recebimento de mensagem
+                        // TRAZER ISSO PARA AS CONFIGURAÇÕES
+                        consumer.WithWorkersCount(
+                            1); // Quantidade de threads paralelas que processam, obs, cada thread so obtem dados da mesma partição
+                        consumer.WithBufferSize(
+                            100); // Define o tamanho da fila interna (buffer) de mensagens que o KafkaFlow mantém
+                        consumer.WithAutoOffsetReset(AutoOffsetReset
+                            .Earliest); // Recebe mensagens do início do log de offset disponivel
+
+                        // TODO: Adicionar um consumo em BATCH EM ALGUM LUGAR QUE FAÇA SENTIDO PRA ESTRESSAR A LIB
+                        consumer.AddMiddlewares(middlewares =>
+                        {
+                            middlewares.Add<ProductReservedMiddleware>();
+                        });
+                    })
+                );
         });
     }).Build();
 

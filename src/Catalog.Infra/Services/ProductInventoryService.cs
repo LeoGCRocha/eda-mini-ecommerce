@@ -40,8 +40,8 @@ public class ProductInventoryService(
     {
         var product = await productRepository.GetProductAsync(productId);
         if (product is null)
-            // TODO: Isso deveria ser uma exception específica e não generica.
-            throw new Exception("Produto inexistente.");
+            // TODO: Deveria ser um NOT FOUND EXCEPTION
+            throw new GenericException("Produto inexistente.");
         product.DeactivateProduct();
         
         await context.SaveChangesAsync();
@@ -74,13 +74,13 @@ public class ProductInventoryService(
 
         return result.Select(r => new ProductAvailabilityResponse(
             r.ProductId,
-            r.AvailableQuantity > productsWithQuantity[new ProductId(r.ProductId)],
+            r.AvailableQuantity >= productsWithQuantity[new ProductId(r.ProductId)],
             r.AvailableQuantity,
             r.UnitPrice
         )).ToList();
     }
 
-    public async Task<bool> ReserveProductIfAvailable(ProductId productId, int quantity)
+    public async Task<bool> ReserveProductIfAvailable(ProductId productId, int quantity, OrderId orderId)
     {
         var inventoryItem = await inventoryItemRepository.GetInventoryItemByProductId(productId);
         if (inventoryItem is null)
@@ -88,14 +88,24 @@ public class ProductInventoryService(
         
         try
         {
-            inventoryItem.ReserveQuantity(quantity);
+            var reserveQuantity = inventoryItem.ReserveQuantity(quantity, orderId);
             await context.SaveChangesAsync();
-            return true;
+            return reserveQuantity;
         }
         catch (Exception)
         {
             return false;
         }
+    }
+
+    public async Task CancelProductReservation(ProductId productId, int quantity)
+    {
+        var inventoryItem = await inventoryItemRepository.GetInventoryItemByProductId(productId);
+     
+        if (inventoryItem is null)
+            throw new GenericException("Não foi possível encontrar o item associado ao produto.");
+
+        inventoryItem.CancelReservation(quantity);
     }
 
     private class ProductWithAvailableAndPrice
