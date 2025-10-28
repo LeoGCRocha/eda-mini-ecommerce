@@ -38,10 +38,6 @@ public class SagaConfiguration : IEntityTypeConfiguration<SagaEntity>
 
         builder.HasKey(prop => prop.OrderId);
 
-        builder.Property(prop => prop.StateData)
-            .HasColumnType("jsonb")
-            .IsRequired(false);
-
         builder.Property(prop => prop.Status)
             .HasConversion<string>()
             .IsRequired();

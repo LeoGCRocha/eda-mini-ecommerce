@@ -1,115 +1,135 @@
 using System.Text.Json;
 using EdaMicroEcommerce.Application.Outbox;
 using EdaMicroEcommerce.Domain.BuildingBlocks;
-using EdaMicroEcommerce.Domain.BuildingBlocks.StronglyTyped;
+using EdaMicroEcommerce.Domain.Enums;
 using Microsoft.Extensions.Logging;
 using Orders.Application.IntegrationEvents;
 using Orders.Application.IntegrationEvents.Products;
+using Orders.Application.Repositories;
 using Orders.Application.Saga.Entity;
 using Orders.Domain.Entities;
 using Orders.Domain.Entities.Events;
+using Platform.SharedContracts.IntegrationEvents.Products;
 
 namespace Orders.Application.Saga.States;
 
-public class ProductReservedState(ILogger<ProductReservedState> logger) : ISagaStateHandler<ProductReservedEvent>
+public class ProductReservedState(ILogger<ProductReservedState> logger, IOrderRepository orderRepository)
+    : ISagaStateHandler<ProductReservationStatusEvent>
 {
     public bool CanHandle(SagaStatus? status)
     {
-        return status == SagaStatus.PENDING_RESERVATION;
+        return status is SagaStatus.PendingReservation or SagaStatus.FailedReservation;
     }
 
-    public Task<SagaTransitionResult> HandleAsync(SagaContext context, ProductReservedEvent @event,
+    // WARNING: A forma que foi feito o code sempre ta tendo muitas roundtrips no banco talvez daria pra juntar varias coisas de uma vez so
+    public async Task<SagaTransitionResult> HandleAsync(SagaContext context, ProductReservationStatusEvent @event,
         CancellationToken cts = default)
     {
-        // <WARNING> Importante da forma que foi feito aqui se tiver um paralelismo para um mesmo pedido
-        // poderia quebrar e a falha não compensar corretamente, além de permitir estados intermitentes
         var entity = context.SagaEntity;
-        if (entity?.StateData is null)
-            throw new GenericException("Espera-se um estado definido para este evento no saga.");
+        Order order = context.Order;
 
-        var stateData = JsonSerializer.Deserialize<StateData>(entity.StateData as string ?? string.Empty);
+        if (entity is null)
+            // WARNING: Esse pode não ser o melhor caminho para lidar por que ficaria perna faltando
+            throw new GenericException(
+                $"É preciso que a saga tenha sido definida antes que chegue um evento de reserva, {@event.OrderId}");
+        
+        // Evitando comportamento inadequado ou dupla tentativa de reserva de produto
+        
+        var reservationStatus = order.OrderItems.First(or => or.ProductId == @event.ProductId).ReservationStatus;
 
-        if (stateData!.AlreadyReserved.FirstOrDefault(prod => prod.ProductId == @event.ProductId) is not null)
+        if (reservationStatus is not ReservationStatus.Pending)
         {
-            logger.LogWarning("Produto {ProductId} já esta reservado para o Pedido {OrderId}", @event.ProductId,
+            logger.LogWarning(
+                "Duplicidade em evento de reserva de produto ou estado invalido identificado, para  OrderId ({OrderId}).",
                 @event.OrderId);
-            return Task.FromResult(SagaTransitionResult.HasNoChange());
+            return SagaTransitionResult.HasNoChange();
         }
 
-        if (!@event.IsReservationSucceed) // Compensação evento de FALHA [Produto não pode ser reservado]
-            return Task.FromResult(CompensationFromAFailure(context, @event, stateData));
+        if (@event.ReservationEventType is ReservationEventType.Failure)
+            return await ReservationCancellationCompensation(context, @event);
 
-        // TODO: Testar isso aqui
-        if (entity.Status == SagaStatus.FAILED_RESERVATION)
+        if (entity.Status == SagaStatus.FailedReservation)
         {
-            // Se conseguiu reservar mas já estava num estado de falha deve cancelar a reserva
+            // Chegou uma reserva para o pedido no SAGA, porém ele já tinha obtido erro em outra
             List<ProductReservationIntegration> reservationFailedIntegrations =
             [
+                // Cancelar a reserva desse pedido
                 new(EventType.ProductReservation,
                     JsonSerializer.Serialize(new ProductReservationEvent(@event.OrderId, @event.ProductId,
-                        @event.ReservedQuantity,  ReservationType.CANCELLATION)))
-
+                        @event.ReservedQuantity,  ReservationEventType.Cancellation)))
+            
             ];
-
-            return Task.FromResult(new SagaTransitionResult()
+            
+            orderRepository.UpdateOrderItemStatus(context.Order, @event.ProductId);
+            
+            return new SagaTransitionResult()
             {
                 EventsToPublish = reservationFailedIntegrations.Cast<OutboxIntegrationEvent<EventType>>().ToList(),
-                // Compensação publicada deve ser enviado para o topico que cancela as reservas
                 IsChange = true
-            });
+            };
         }
         
-        stateData.CurrentReservations++;
-        stateData.AlreadyReserved.Add(new ProductInformation()
-        {
-            ProductId = @event.ProductId,
-            Quantity = @event.ReservedQuantity
-        });
-        entity.StateData = JsonSerializer.Serialize(stateData);
+        // Caminho normal esperado
+        // Realizar reserva recebida do produto no pedido em específico.
+        if (@event.ReservationEventType is not ReservationEventType.Reservation)
+            throw new GenericException($"Tipo de evento inesperado para o pedido ({@event.OrderId}) neste momento.");
+        
+        // Atualiza o estado do produto atual no pedido
+        order.UpdateOrderItensStatus([@event.ProductId], ReservationStatus.Reserved);
 
-        if (stateData.CurrentReservations != stateData.ExpectedReservations)
-            return Task.FromResult(new SagaTransitionResult()
+        if (order.OrderItems.Where(or => or.ReservationStatus == ReservationStatus.Reserved).ToList().Count ==
+            order.OrderItems.Count)
+        {
+            // Se todos os itens já foram reservados o pedido pode prosseguir para proximal etapa que seria aguardar o pagamento
+            return new SagaTransitionResult()
             {
+                NewStatus = SagaStatus.PendingPayment,
+                NewOrderStatus = OrderStatus.PendingPayment,
                 IsChange = true
-            });
+            };
+        }
 
-        entity.Status = SagaStatus.PENDING_PAYMENT;
-        context.Order.ChangeStatus(OrderStatus.PENDING_PAYMENT);
-
-        return Task.FromResult(new SagaTransitionResult
+        return new SagaTransitionResult()
         {
-            NewStatus = SagaStatus.PENDING_PAYMENT,
-            NewOrderStatus = OrderStatus.PENDING_PAYMENT,
             IsChange = true
-        });
+        };
     }
 
-    private SagaTransitionResult CompensationFromAFailure(SagaContext context, ProductReservedEvent @event,
-        StateData stateData)
+    private async Task<SagaTransitionResult> ReservationCancellationCompensation(SagaContext context,
+        ProductReservationStatusEvent @event)
     {
-        stateData.FailedReservations++;
-
-        context.SagaEntity!.StateData = JsonSerializer.Serialize(stateData);
-        context.Order.ChangeStatus(OrderStatus.FAILED_RESERVATION);
-        context.SagaEntity!.Status = SagaStatus.FAILED_RESERVATION;
+        // Ao chegar um evento de falha para um produto específico na SAGA, os demais produtos do pedido
+        // precisarão ser cancelados e compensados
+        try
+        {
+            context.Order.ChangeStatus(OrderStatus.FailedReservation);
+            context.SagaEntity!.Status = SagaStatus.FailedReservation;
+        }
+        catch (Exception ex)
+        {
+            // !!!! <WARNING>
+            // Aqui deveríamos ter um comportamento para lidar com essa falha, pois representa um estado critico para o sistema
+            // Caso isso aqui não aconteça o estoque vai ficar travado sem um pedido realmente associado.
+            logger.LogError(ex, "Falha ao tentar compensar o evento para {OrderId}.", @event.OrderId);
+            throw;
+        }
 
         List<ProductReservationIntegration> reservationToCancel = [];
 
-        // TODO: Testar se isso aqui ta funcionando deve cancelar as reservas feitas do produtos anteriormnete.
-        // TODO: Com esses dois pontos finalizados esta etapa do saga ta concluindo
-        // TODO: Criar talvez um objeto no saga Already canceled pra evitar duplicade pra tentar cancelar reserva
-        var stateDate = (StateData)context.SagaEntity.StateData;
-        reservationToCancel.AddRange(
-            stateDate.AlreadyReserved.Select(prod => 
-                new ProductReservationIntegration(EventType.ProductReservation, 
-                    JsonSerializer.Serialize(new ProductReservationEvent(context.Order.Id, prod.ProductId, prod.Quantity, ReservationType.CANCELLATION)))));
+        var reservationToCancelTuple =
+            orderRepository.CancelAllReservationFromAFailure(context.Order, @event.ProductId);
+        
+        reservationToCancel.AddRange(reservationToCancelTuple.Select(tuple => 
+            new ProductReservationIntegration(EventType.ProductReservation,
+                JsonSerializer.Serialize(new ProductReservationEvent(@event.OrderId, tuple.Item1,
+                    tuple.Item2, ReservationEventType.Cancellation)))));
 
-        return new SagaTransitionResult
+        return await Task.FromResult(new SagaTransitionResult
         {
-            NewStatus = SagaStatus.FAILED_RESERVATION,
-            NewOrderStatus = OrderStatus.FAILED_RESERVATION,
-            EventsToPublish = reservationToCancel.Cast<OutboxIntegrationEvent<EventType>>().ToList(),
+            NewStatus = SagaStatus.FailedReservation,
+            NewOrderStatus = OrderStatus.FailedReservation,
+            EventsToPublish = reservationToCancel.Cast<OutboxIntegrationEvent<EventType>>().ToList(), // Envia pro outbox e depois ele envia para o topic interessado
             IsChange = true
-        };
+        });
     }
 }

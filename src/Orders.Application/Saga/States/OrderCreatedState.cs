@@ -5,8 +5,10 @@ using Orders.Domain.Entities.Events;
 using Orders.Application.Saga.Entity;
 using Orders.Application.Repositories;
 using EdaMicroEcommerce.Application.Outbox;
+using EdaMicroEcommerce.Domain.Enums;
 using Orders.Application.IntegrationEvents;
 using Orders.Application.IntegrationEvents.Products;
+using Platform.SharedContracts.IntegrationEvents.Products;
 
 namespace Orders.Application.Saga.States;
 
@@ -27,30 +29,21 @@ public class OrderCreatedState(ILogger<OrderCreatedState> logger, ISagaRepositor
             return Task.FromResult(SagaTransitionResult.HasNoChange());
         }
 
-        var stateData = new StateData()
-        {
-            ExpectedReservations = @event.ProductOrderInfos.Count,
-            CurrentReservations = 0,
-            FailedReservations = 0,
-            AlreadyReserved = []
-        };
-
         List<ProductReservationIntegration> productsEvents = [];
         
         productsEvents.AddRange(@event.ProductOrderInfos
             .Select(productReservation =>
-                new ProductReservationEvent(@event.OrderId, productReservation.ProductId, productReservation.Quantity, ReservationType.RESERVATION))
+                new ProductReservationEvent(@event.OrderId, productReservation.ProductId, productReservation.Quantity, ReservationEventType.Reservation))
             .Select(objectEvent =>
                 new ProductReservationIntegration(EventType.ProductReservation,
                     JsonSerializer.Serialize(objectEvent))));
 
         return Task.FromResult(new SagaTransitionResult()
         {
-            NewStatus = SagaStatus.PENDING_RESERVATION,
-            NewOrderStatus = OrderStatus.PENDING_RESERVATION,
-            ReferenceEntity = new SagaEntity(@event.OrderId, JsonSerializer.Serialize(stateData), SagaStatus.ORDER_CREATED),
+            NewStatus = SagaStatus.PendingReservation,
+            NewOrderStatus = OrderStatus.PendingReservation,
+            ReferenceEntity = new SagaEntity(@event.OrderId, SagaStatus.OrderCreated),
             EventsToPublish = productsEvents.Cast<OutboxIntegrationEvent<EventType>>().ToList(), // Persistência dos eventos que irão para o outbox...
-            UpdatedStateData = stateData,
             IsChange = true
         });
     }

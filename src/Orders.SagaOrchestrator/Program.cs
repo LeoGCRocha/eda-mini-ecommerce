@@ -26,7 +26,7 @@ var host = Host.CreateDefaultBuilder(args)
 
         services.AddSingleton<ISagaStateHandlerFactory, StateHandlerFactory>();
         services.AddScoped<ISagaStateHandler<OrderCreatedEvent>, OrderCreatedState>();
-        services.AddScoped<ISagaStateHandler<ProductReservedEvent>, ProductReservedState>();
+        services.AddScoped<ISagaStateHandler<ProductReservationStatusEvent>, ProductReservedState>();
         services.AddScoped<ISagaOrchestrator, SagaOrchestrator>();
         services.AddScoped<ISagaRepository, SagaRepository>();
         services.AddScoped<IOrderRepository, OrderRepository>();

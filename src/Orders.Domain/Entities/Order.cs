@@ -1,5 +1,6 @@
 using EdaMicroEcommerce.Domain.BuildingBlocks;
 using EdaMicroEcommerce.Domain.BuildingBlocks.StronglyTyped;
+using EdaMicroEcommerce.Domain.Enums;
 using Orders.Domain.Entities.Events;
 using Orders.Domain.Entities.Exceptions;
 
@@ -31,7 +32,7 @@ public class Order : AggregateRoot<OrderId>
         foreach (var orderItem in orderItems)
             AddOrderItem(orderItem);
         ApplyDiscount(discountAmount);
-        Status = OrderStatus.CREATED;
+        Status = OrderStatus.Created;
         AddDomainEvent(new OrderCreatedEvent(Id,
             _orderItems.Select(oe => new ProductOrderInfo(oe.ProductId, oe.Quantity)).ToList()));
     }
@@ -55,7 +56,7 @@ public class Order : AggregateRoot<OrderId>
     
     public void CancelOrder(string reason)
     {
-        ChangeStatus(OrderStatus.CANCELED);
+        ChangeStatus(OrderStatus.Canceled);
         AddDomainEvent(new OrderCanceledEvent(Id, reason));
     }
 
@@ -63,11 +64,25 @@ public class Order : AggregateRoot<OrderId>
     {
         Status = Status switch
         {
-            OrderStatus.CANCELED => throw new InvalidStatusChangeException(
+            OrderStatus.Canceled => throw new InvalidStatusChangeException(
                 "Pedido não pode mudar de status apos cancelado."),
-            OrderStatus.PAID => throw new InvalidStatusChangeException(
+            OrderStatus.Paid => throw new InvalidStatusChangeException(
                 "Pedido não pode mudar de estado apos confirmado."),
             _ => newStatus
         };
+    }
+    
+    public List<(ProductId, int)> UpdateOrderItensStatus(List<ProductId> productsIds, ReservationStatus status)
+    {
+        var productsWithQuantity = new List<(ProductId, int)>();
+        
+        var orderItems = _orderItems.Where(or => productsIds.Contains(or.ProductId));
+        
+        foreach (var orderItem in orderItems) {
+            orderItem.ReservationStatus = status;
+            productsWithQuantity.Add(new ValueTuple<ProductId, int>(orderItem.ProductId, orderItem.Quantity));
+        }
+
+        return productsWithQuantity;
     }
 }

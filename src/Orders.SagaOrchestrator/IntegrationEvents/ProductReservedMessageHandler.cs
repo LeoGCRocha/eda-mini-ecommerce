@@ -4,7 +4,7 @@ using Orders.Domain.Entities.Events;
 
 namespace Orders.Saga.IntegrationEvents;
 
-public class ProductReservedMessageHandler : IMessageHandler<ProductReservedEvent>
+public class ProductReservedMessageHandler : IMessageHandler<ProductReservationStatusEvent>
 {
     private readonly ISagaOrchestrator _sagaOrchestrator;
 
@@ -13,7 +13,7 @@ public class ProductReservedMessageHandler : IMessageHandler<ProductReservedEven
         _sagaOrchestrator = sagaOrchestrator;
     }
 
-    public async Task Handle(IMessageContext context, ProductReservedEvent message)
+    public async Task Handle(IMessageContext context, ProductReservationStatusEvent message)
     {
         await _sagaOrchestrator.ExecuteAsync(message.OrderId, message);
     }

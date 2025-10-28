@@ -98,14 +98,16 @@ public class ProductInventoryService(
         }
     }
 
-    public async Task CancelProductReservation(ProductId productId, int quantity)
+    public async Task CancelProductReservation(OrderId orderId, ProductId productId, int quantity)
     {
         var inventoryItem = await inventoryItemRepository.GetInventoryItemByProductId(productId);
      
         if (inventoryItem is null)
             throw new GenericException("Não foi possível encontrar o item associado ao produto.");
 
-        inventoryItem.CancelReservation(quantity);
+        inventoryItem.CancelReservation(orderId, quantity);
+
+        await context.SaveChangesAsync();
     }
 
     private class ProductWithAvailableAndPrice

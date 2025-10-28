@@ -1,4 +1,5 @@
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using KafkaFlow;
 using Orders.Application.Saga;
 using Orders.Domain.Entities.Events;
@@ -15,8 +16,8 @@ public class ProductReservedMiddleware : IMessageMiddleware
         var bytes = context.Message.Value as byte[];
         var payloadString = bytes is null ? "" : System.Text.Encoding.UTF8.GetString(bytes);
         
-        var message = JsonSerializer.Deserialize<ProductReservedEvent>(payloadString,
-            new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+        var message = JsonSerializer.Deserialize<ProductReservationStatusEvent>(payloadString,
+            new JsonSerializerOptions { PropertyNameCaseInsensitive = true, Converters = { new JsonStringEnumConverter() }});
 
         if (message is not null)
         {

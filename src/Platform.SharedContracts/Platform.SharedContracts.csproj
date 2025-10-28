@@ -8,7 +8,10 @@
 
     <ItemGroup>
       <ProjectReference Include="..\..\Plataform.Domain\Plataform.Domain.csproj" />
-      <ProjectReference Include="..\Platform.SharedContracts\Platform.SharedContracts.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="Enums\" />
     </ItemGroup>
 
 </Project>

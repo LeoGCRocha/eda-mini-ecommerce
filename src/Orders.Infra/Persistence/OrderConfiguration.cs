@@ -43,6 +43,7 @@ public class OrderConfiguration : IEntityTypeConfiguration<Order>
             .IsRequired();
         
         builder.Property(prop => prop.Status)
+            .HasConversion<string>()
             .IsRequired();
 
         builder.Property(prop => prop.PaymentId)
@@ -80,6 +81,10 @@ public class OrderConfiguration : IEntityTypeConfiguration<Order>
                 .IsRequired()
                 .ValueGeneratedNever();
 
+            innerTable.Property(prop => prop.ReservationStatus)
+                .HasConversion<string>()
+                .IsRequired();
+            
             innerTable.Property(prop => prop.Quantity)
                 .IsRequired();
 

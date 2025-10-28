@@ -3,6 +3,7 @@ using System.Text.Json;
 using Catalog.Domain.Entities;
 using Microsoft.Extensions.Logging;
 using EcaMicroEcommerce.ProductWorker.IntegrationsEvent.ProductReservationHandler;
+using Platform.SharedContracts.IntegrationEvents.Products;
 
 namespace EcaMicroEcommerce.ProductWorker;
 
@@ -20,7 +21,7 @@ public class ProductReservationMiddleware : IMessageMiddleware
 
         if (message is not null)
         {
-            var handler = new ProductReservationHandler(sp.Resolve<IProductInventoryService>(), sp.Resolve<ILogger<ProductReservationHandler>>());
+            var handler = new ProductInventoryReservationHandler(sp.Resolve<IProductInventoryService>(), sp.Resolve<ILogger<ProductInventoryReservationHandler>>());
             await handler.Handle(context, message);
         }
     }

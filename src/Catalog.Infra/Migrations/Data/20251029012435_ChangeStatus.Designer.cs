@@ -3,6 +3,7 @@ using System;
 using Catalog.Infra;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Catalog.Infra.Migrations.Data
 {
     [DbContext(typeof(CatalogContext))]
-    partial class CatalogContextModelSnapshot : ModelSnapshot
+    [Migration("20251029012435_ChangeStatus")]
+    partial class ChangeStatus
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -177,21 +180,9 @@ namespace Catalog.Infra.Migrations.Data
                                 .HasColumnType("uuid")
                                 .HasColumnName("inventory_item_id");
 
-                            b1.Property<DateTime>("OccuredAtUtc")
-                                .ValueGeneratedOnAdd()
-                                .HasColumnType("timestamp without time zone")
-                                .HasColumnName("occured_at_utc")
-                                .HasDefaultValueSql("NOW()");
-
                             b1.Property<Guid>("OrderId")
                                 .HasColumnType("uuid")
                                 .HasColumnName("order_id");
-
-                            b1.Property<int>("Quantity")
-                                .ValueGeneratedOnAdd()
-                                .HasColumnType("integer")
-                                .HasDefaultValue(0)
-                                .HasColumnName("quantity");
 
                             b1.Property<string>("Status")
                                 .IsRequired()

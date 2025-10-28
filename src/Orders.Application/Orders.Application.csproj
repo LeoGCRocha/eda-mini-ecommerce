@@ -9,6 +9,7 @@
     <ItemGroup>
       <ProjectReference Include="..\Orders.Domain\Orders.Domain.csproj" />
       <ProjectReference Include="..\Platform.Application\Platform.Application.csproj" />
+      <ProjectReference Include="..\Platform.SharedContracts\Platform.SharedContracts.csproj" />
     </ItemGroup>
 
 </Project>

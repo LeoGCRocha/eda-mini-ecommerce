@@ -17,12 +17,6 @@ public class SagaOrchestrator : ISagaOrchestrator
     private readonly ISagaRepository _sagaRepository;
     private readonly ISagaStateHandlerFactory _stateHandlerFactory;
 
-    // TODO: Validar se projetos estão referênciando somente oque faz sentido pra garantir um BUILD de qualidade....
-    // TODO: Em um sistema critico desse como lidar com mensagens que falharam ????
-    // TODO: Juntar os pedidos todos em um só pra evitar mensagens duplicadas no BROKER....
-    // TODO: Schema registry VERSIONAMENTO como é FEITO ?
-    // TODO: Melhorar estrutura do projeto atual e finalizar segundo pro MODULO DE PAGAMENTOS....
-    // TODO: FINALIZAR COM MELHORES VOLTADAS PRA PERFOMANCE COMO CONSUMO EM BATCHES.... E ADIÇÃO DO BOUNCER....
     public SagaOrchestrator(OrderContext orderContext, ILogger<SagaOrchestrator> logger,
         IOrderRepository orderRepository, ISagaRepository sagaRepository, ISagaStateHandlerFactory stateHandlerFactory)
     {
@@ -35,9 +29,6 @@ public class SagaOrchestrator : ISagaOrchestrator
 
     public async Task ExecuteAsync<T>(OrderId orderId, T @event, CancellationToken cts = default)
     {
-        // TODO: Ta dando quantidade insuficiente ao ficar igual....
-        
-        
         // 1. Buscar o contexto atual do SAGA
         var context = await BuildContextAsync(orderId, cts);
         var handler = _stateHandlerFactory.GetHandler<T>();

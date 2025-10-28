@@ -1,8 +1,7 @@
-using EdaMicroEcommerce.Application.Outbox;
-using Orders.Application.IntegrationEvents;
-using Orders.Application.Saga.Entity;
-using Orders.Application.Saga.States;
 using Orders.Domain.Entities;
+using Orders.Application.Saga.Entity;
+using Orders.Application.IntegrationEvents;
+using EdaMicroEcommerce.Application.Outbox;
 
 namespace Orders.Application;
 
@@ -13,8 +12,6 @@ public class SagaTransitionResult
     public SagaEntity? ReferenceEntity { get; set; }
     public List<OutboxIntegrationEvent<EventType>> EventsToPublish { get; set; } = [];
     public bool IsChange { get; set; } = false;
-
-    public StateData? UpdatedStateData { get; set; }
 
     public static SagaTransitionResult HasNoChange()
     {

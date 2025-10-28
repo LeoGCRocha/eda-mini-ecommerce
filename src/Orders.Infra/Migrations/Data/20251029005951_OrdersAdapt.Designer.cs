@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using Orders.Infra;
@@ -11,9 +12,11 @@ using Orders.Infra;
 namespace Orders.Infra.Migrations.Data
 {
     [DbContext(typeof(OrderContext))]
-    partial class OrderContextModelSnapshot : ModelSnapshot
+    [Migration("20251029005951_OrdersAdapt")]
+    partial class OrdersAdapt
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -141,9 +144,8 @@ namespace Orders.Infra.Migrations.Data
                         .HasColumnType("uuid")
                         .HasColumnName("payment_id");
 
-                    b.Property<string>("Status")
-                        .IsRequired()
-                        .HasColumnType("text")
+                    b.Property<int>("Status")
+                        .HasColumnType("integer")
                         .HasColumnName("status");
 
                     b.Property<decimal>("TotalAmount")
@@ -204,9 +206,8 @@ namespace Orders.Infra.Migrations.Data
                                 .HasColumnType("integer")
                                 .HasColumnName("quantity");
 
-                            b1.Property<string>("ReservationStatus")
-                                .IsRequired()
-                                .HasColumnType("text")
+                            b1.Property<int>("ReservationStatus")
+                                .HasColumnType("integer")
                                 .HasColumnName("reservation_status");
 
                             b1.Property<decimal>("UnitPrice")
