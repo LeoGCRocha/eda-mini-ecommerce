@@ -1,11 +1,13 @@
-﻿using KafkaFlow;
+﻿using System.Text.Json;
+using KafkaFlow;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Configuration;
 using Catalog.Application.IntegrationEvents;
-using Catalog.Infra;
+using EcaMicroEcommerce.ProductWorker;
 using Microsoft.Extensions.DependencyInjection;
 using EcaMicroEcommerce.ProductWorker.IntegrationsEvent.ProductDeactivated;
+using EcaMicroEcommerce.ProductWorker.IntegrationsEvent.ProductReservationHandler;
 using EdaMicroEcommerce.Infra.Configuration;
 using KafkaFlow.Serializer;
 
@@ -23,23 +25,33 @@ var host = Host.CreateDefaultBuilder(args)
         services.Configure<MessageBrokerConfiguration>(configuration.GetSection("MessageBroker"));
 
         var messageBrokerSection = configuration.GetSection("MessageBroker");
+        
         var messageBroker = messageBrokerSection.Get<MessageBrokerConfiguration>();
+        
         if (messageBroker is null)
             throw new Exception("O Message Broker precisa estar definido corretamente.");
 
-        if (!messageBroker.Consumers.TryGetValue(MessageBrokerConst.ProductDeactivatedCosnumer,
-                out var consumerConfiguration))
+        if (!messageBroker.Consumers.TryGetValue(MessageBrokerConst.ProductDeactivatedConsumer,
+                out var productDeactivatedConsumer))
             throw new ArgumentException("É esperado as configuração de consumer para produto.");
+        
+        if (!messageBroker.Consumers.TryGetValue(MessageBrokerConst.InventoryReservationConsumer,
+                out var productReservationConsumer))
+            throw new ArgumentException("É esperado as configuração de consumer para produto.");
+
 
         services.AddKafkaFlowHostedService(kafka =>
         {
+            // <WARNING> Em termos práticos fiz tudo com auto commit habilitado, mas pode não ser a melhor pratica num
+            // sistema real
             kafka.UseMicrosoftLog();
             kafka.AddCluster(cluster =>
                 cluster.WithBrokers([messageBroker.BootstrapServers])
                     .AddConsumer(consumer =>
                     {
-                        consumer.Topic(consumerConfiguration.Topic);
-                        consumer.WithGroupId(consumerConfiguration
+                        // TODO: Adicionar isso aqui no SAGA....
+                        consumer.Topic(productDeactivatedConsumer.Topic);
+                        consumer.WithGroupId(productDeactivatedConsumer
                             .GroupId); // Consumer group usado para definir o recebimento de mensagem
                         // TRAZER ISSO PARA AS CONFIGURAÇÕES
                         consumer.WithWorkersCount(
@@ -48,14 +60,13 @@ var host = Host.CreateDefaultBuilder(args)
                             100); // Define o tamanho da fila interna (buffer) de mensagens que o KafkaFlow mantém
                         consumer.WithAutoOffsetReset(AutoOffsetReset
                             .Earliest); // Recebe mensagens do início do log de offset disponivel
-
+                        
                         // TODO: Adicionar um consumo em BATCH EM ALGUM LUGAR QUE FAÇA SENTIDO PRA ESTRESSAR A LIB
                         consumer.AddMiddlewares(middlewares =>
                         {
                             middlewares.AddDeserializer<JsonCoreDeserializer>();
                             middlewares.AddTypedHandlers(handlers =>
                             {
-                                handlers.WithHandlerLifetime(InstanceLifetime.Scoped);
                                 handlers.AddHandler<ProductDeactivatedMessageHandler>();
                                 handlers.WhenNoHandlerFound(context =>
                                 {
@@ -65,7 +76,22 @@ var host = Host.CreateDefaultBuilder(args)
                                 });
                             });
                         });
-                    }));
+                    })
+                    .AddConsumer(consumer =>
+                    {
+                        consumer.Topic(productReservationConsumer.Topic);
+                        consumer.WithGroupId(productReservationConsumer.GroupId);
+                        consumer.WithWorkersCount(1);
+                        consumer.WithBufferSize(100);
+                        consumer.WithAutoOffsetReset(AutoOffsetReset.Earliest);
+
+                        consumer.AddMiddlewares(middlewares =>
+                        {
+                           // <WARNING> Tive problemas com o JSON CORE DESERIALIZER 
+                           middlewares.Add<ProductReservationMiddleware>();
+                        });
+                    })
+                );
         });
     }).Build();
 

@@ -23,7 +23,7 @@ namespace Catalog.Infra.Migrations.Data
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("Catalog.Domain.Catalog.InventoryItems.InventoryItem", b =>
+            modelBuilder.Entity("Catalog.Domain.Entities.InventoryItems.InventoryItem", b =>
                 {
                     b.Property<Guid>("Id")
                         .HasColumnType("uuid")
@@ -59,7 +59,7 @@ namespace Catalog.Infra.Migrations.Data
                     b.ToTable("inventory_items", "catalog");
                 });
 
-            modelBuilder.Entity("Catalog.Domain.Catalog.Products.Product", b =>
+            modelBuilder.Entity("Catalog.Domain.Entities.Products.Product", b =>
                 {
                     b.Property<Guid>("Id")
                         .HasColumnType("uuid")
@@ -155,14 +155,66 @@ namespace Catalog.Infra.Migrations.Data
                     b.ToTable("outbox_integration_events", "catalog");
                 });
 
-            modelBuilder.Entity("Catalog.Domain.Catalog.InventoryItems.InventoryItem", b =>
+            modelBuilder.Entity("Catalog.Domain.Entities.InventoryItems.InventoryItem", b =>
                 {
-                    b.HasOne("Catalog.Domain.Catalog.Products.Product", null)
+                    b.HasOne("Catalog.Domain.Entities.Products.Product", null)
                         .WithOne()
-                        .HasForeignKey("Catalog.Domain.Catalog.InventoryItems.InventoryItem", "ProductId")
+                        .HasForeignKey("Catalog.Domain.Entities.InventoryItems.InventoryItem", "ProductId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("fk_inventory_items_products_product_id");
+
+                    b.OwnsMany("Catalog.Domain.Entities.InventoryItems.Reservation", "Reservations", b1 =>
+                        {
+                            b1.Property<int>("id")
+                                .ValueGeneratedOnAdd()
+                                .HasColumnType("integer")
+                                .HasColumnName("id");
+
+                            NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b1.Property<int>("id"));
+
+                            b1.Property<Guid>("InventoryItemId")
+                                .HasColumnType("uuid")
+                                .HasColumnName("inventory_item_id");
+
+                            b1.Property<DateTime>("OccuredAtUtc")
+                                .ValueGeneratedOnAdd()
+                                .HasColumnType("timestamp without time zone")
+                                .HasColumnName("occured_at_utc")
+                                .HasDefaultValueSql("NOW()");
+
+                            b1.Property<Guid>("OrderId")
+                                .HasColumnType("uuid")
+                                .HasColumnName("order_id");
+
+                            b1.Property<int>("Quantity")
+                                .ValueGeneratedOnAdd()
+                                .HasColumnType("integer")
+                                .HasDefaultValue(0)
+                                .HasColumnName("quantity");
+
+                            b1.Property<string>("Status")
+                                .IsRequired()
+                                .HasColumnType("text")
+                                .HasColumnName("status");
+
+                            b1.HasKey("id")
+                                .HasName("pk_reservations");
+
+                            b1.HasIndex("InventoryItemId")
+                                .HasDatabaseName("ix_reservations_inventory_item_id");
+
+                            b1.HasIndex("OrderId")
+                                .HasDatabaseName("ix_reservations_order_id");
+
+                            b1.ToTable("reservations", "catalog");
+
+                            b1.WithOwner()
+                                .HasForeignKey("InventoryItemId")
+                                .HasConstraintName("fk_reservations_inventory_items_inventory_item_id");
+                        });
+
+                    b.Navigation("Reservations");
                 });
 #pragma warning restore 612, 618
         }

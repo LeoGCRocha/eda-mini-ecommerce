@@ -1,8 +1,8 @@
-using Catalog.Domain.Catalog.InventoryItems;
-using Catalog.Domain.Catalog.Products;
-using EdaMicroEcommerce.Domain.BuildingBlocks.StronglyTyped;
 using Microsoft.EntityFrameworkCore;
+using Catalog.Domain.Entities.Products;
+using Catalog.Domain.Entities.InventoryItems;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using EdaMicroEcommerce.Domain.BuildingBlocks.StronglyTyped;
 
 namespace Catalog.Infra.Persistence.Configuration;
 
@@ -41,5 +41,38 @@ public class InventoryItemConfiguration : IEntityTypeConfiguration<InventoryItem
             .WithOne()
             .HasForeignKey<InventoryItem>(p => p.ProductId)
             .OnDelete(DeleteBehavior.Cascade);
+
+        builder.OwnsMany(prop => prop.Reservations, innerTable =>
+        {
+            // <WARNING> Importante é que o owns many apesar de criar uma relação de posse entre o pai e filho
+            // no ef possui uma limitação onde ele não define a constraint manualmente para o comportamento on delete.
+            innerTable.ToTable("reservations");
+
+            innerTable.Property<int>("id")
+                .ValueGeneratedOnAdd();
+            
+            innerTable.HasKey("id");
+
+            innerTable.Property(innerProp => innerProp.Quantity)
+                .IsRequired()
+                .HasDefaultValue(0);
+            
+            innerTable.Property(innerProp => innerProp.OccuredAtUtc)
+                .HasDefaultValueSql("NOW()");
+            
+            innerTable.Property(innerProp => innerProp.OrderId)
+                .HasConversion(
+                    v => v.Value,
+                    value => new OrderId(value))
+                .IsRequired()
+                .ValueGeneratedNever();
+
+            innerTable.Property(innerProp => innerProp.Status)
+                .HasConversion<string>()
+                .HasColumnName("status")
+                .IsRequired();
+
+            innerTable.HasIndex(innerProp => innerProp.OrderId);
+        });
     }
 }

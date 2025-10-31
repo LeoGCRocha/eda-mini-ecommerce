@@ -24,11 +24,8 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="Features\" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <ProjectReference Include="..\Catalog.Infra\Catalog.Infra.csproj" />
+      <ProjectReference Include="..\Catalog.Api\Catalog.Api.csproj" />
+      <ProjectReference Include="..\Orders.Api\Orders.Api.csproj" />
       <ProjectReference Include="..\Platform.Application\Platform.Application.csproj" />
       <ProjectReference Include="..\Plataform.Infra\Plataform.Infra.csproj" />
     </ItemGroup>
