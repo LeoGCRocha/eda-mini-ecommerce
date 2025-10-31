@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
         <TargetFramework>net8.0</TargetFramework>
@@ -7,15 +7,15 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <PackageReference Include="Carter" Version="8.0.0" />
-      <PackageReference Include="MediatR" Version="13.0.0" />
+      <PackageReference Include="Carter" />
+      <PackageReference Include="MediatR" />
     </ItemGroup>
 
     <ItemGroup>
       <ProjectReference Include="..\Catalog.Api\Catalog.Api.csproj" />
       <ProjectReference Include="..\Catalog.Contracts\Catalog.Contracts.csproj" />
       <ProjectReference Include="..\Orders.Infra\Orders.Infra.csproj" />
-      <ProjectReference Include="..\Plataform.Infra\Plataform.Infra.csproj" />
+      <ProjectReference Include="..\Platform.Infra\Platform.Infra.csproj" />
     </ItemGroup>
 
 </Project>

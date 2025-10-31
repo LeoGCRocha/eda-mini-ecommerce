@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
         <OutputType>Exe</OutputType>
@@ -9,19 +9,19 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <PackageReference Include="KafkaFlow" Version="4.0.1" />
-      <PackageReference Include="KafkaFlow.Extensions.Hosting" Version="4.0.1" />
-      <PackageReference Include="KafkaFlow.LogHandler.Console" Version="4.0.1" />
-      <PackageReference Include="KafkaFlow.LogHandler.Microsoft" Version="4.0.1" />
-      <PackageReference Include="KafkaFlow.Microsoft.DependencyInjection" Version="4.0.1" />
-      <PackageReference Include="Microsoft.Extensions.Hosting" Version="9.0.9" />
+      <PackageReference Include="KafkaFlow" />
+      <PackageReference Include="KafkaFlow.Extensions.Hosting" />
+      <PackageReference Include="KafkaFlow.LogHandler.Console" />
+      <PackageReference Include="KafkaFlow.LogHandler.Microsoft" />
+      <PackageReference Include="KafkaFlow.Microsoft.DependencyInjection" />
+      <PackageReference Include="Microsoft.Extensions.Hosting" />
     </ItemGroup>
 
     <ItemGroup>
       <ProjectReference Include="..\Catalog.Application\Catalog.Application.csproj" />
       <ProjectReference Include="..\Catalog.Domain\Catalog.Domain.csproj" />
       <ProjectReference Include="..\Catalog.Infra\Catalog.Infra.csproj" />
-      <ProjectReference Include="..\Plataform.Infra\Plataform.Infra.csproj" />
+      <ProjectReference Include="..\Platform.Infra\Platform.Infra.csproj" />
       <ProjectReference Include="..\Platform.SharedContracts\Platform.SharedContracts.csproj" />
     </ItemGroup>
 
