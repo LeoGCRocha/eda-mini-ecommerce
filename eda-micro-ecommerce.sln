@@ -49,6 +49,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Orders.SagaOrchestrator", "
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Platform.SharedContracts", "src\Platform.SharedContracts\Platform.SharedContracts.csproj", "{62B139FB-DA2B-43BF-A568-B2245A256B7A}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EdaMicroEcommerce.AppHost", "src\EdaMicroEcommerce.AppHost\EdaMicroEcommerce.AppHost.csproj", "{62B7A73C-7357-4A86-8274-0AA089B7A655}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -123,6 +125,10 @@ Global
 		{62B139FB-DA2B-43BF-A568-B2245A256B7A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{62B139FB-DA2B-43BF-A568-B2245A256B7A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{62B139FB-DA2B-43BF-A568-B2245A256B7A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{62B7A73C-7357-4A86-8274-0AA089B7A655}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{62B7A73C-7357-4A86-8274-0AA089B7A655}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{62B7A73C-7357-4A86-8274-0AA089B7A655}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{62B7A73C-7357-4A86-8274-0AA089B7A655}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{C3BE1808-4DD1-4847-8FBF-3264AEA7F81C} = {B4F6860B-8B32-4C0C-9B3D-BB82C232823C}
