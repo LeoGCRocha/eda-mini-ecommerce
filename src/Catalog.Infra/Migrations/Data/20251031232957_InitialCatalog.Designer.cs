@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Catalog.Infra.Migrations.Data
 {
     [DbContext(typeof(CatalogContext))]
-    [Migration("20251029012435_ChangeStatus")]
-    partial class ChangeStatus
+    [Migration("20251031232957_InitialCatalog")]
+    partial class InitialCatalog
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -180,9 +180,21 @@ namespace Catalog.Infra.Migrations.Data
                                 .HasColumnType("uuid")
                                 .HasColumnName("inventory_item_id");
 
+                            b1.Property<DateTime>("OccuredAtUtc")
+                                .ValueGeneratedOnAdd()
+                                .HasColumnType("timestamp without time zone")
+                                .HasColumnName("occured_at_utc")
+                                .HasDefaultValueSql("NOW()");
+
                             b1.Property<Guid>("OrderId")
                                 .HasColumnType("uuid")
                                 .HasColumnName("order_id");
+
+                            b1.Property<int>("Quantity")
+                                .ValueGeneratedOnAdd()
+                                .HasColumnType("integer")
+                                .HasDefaultValue(0)
+                                .HasColumnName("quantity");
 
                             b1.Property<string>("Status")
                                 .IsRequired()

@@ -1,8 +1,8 @@
+using Orders.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
+using Orders.Application.Saga.Entity;
 using Orders.Application.IntegrationEvents;
 using EdaMicroEcommerce.Application.Outbox;
-using Orders.Domain.Entities;
-using Orders.Application.Saga.Entity;
 
 namespace Orders.Infra;
 

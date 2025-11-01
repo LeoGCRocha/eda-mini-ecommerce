@@ -2,10 +2,10 @@
 
 #nullable disable
 
-namespace Catalog.Infra.Migrations.Data
+namespace Orders.Infra.Migrations.Data
 {
     /// <inheritdoc />
-    public partial class ChangeStatus : Migration
+    public partial class OrdersSchemaUp : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)

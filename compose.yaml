@@ -33,3 +33,9 @@
 
 volumes:
   pgdata:    
+  edamicroecommerce.apphost:
+    image: edamicroecommerce.apphost
+    build:
+      context: .
+      dockerfile: src/EdaMicroEcommerce.AppHost/Dockerfile
+

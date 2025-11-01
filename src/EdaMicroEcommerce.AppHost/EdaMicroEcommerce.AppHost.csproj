@@ -8,10 +8,13 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <UserSecretsId>b51fe02d-9e64-496c-9fe8-06514115a68d</UserSecretsId>
+        <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
     </PropertyGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\Catalog.InventoryWorker\Catalog.InventoryWorker.csproj" />
       <ProjectReference Include="..\EdaMicroEcommerce.Api\EdaMicroEcommerce.Api.csproj" />
+      <ProjectReference Include="..\Orders.SagaOrchestrator\Orders.SagaOrchestrator.csproj" />
     </ItemGroup>
 
     <ItemGroup>

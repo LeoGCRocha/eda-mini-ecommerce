@@ -41,7 +41,7 @@ public static class CatalogServicesExtensions
     private static IServiceCollection AddDatabase(this IServiceCollection services, IConfiguration appConfiguration)
     {
         services.AddDbContext<CatalogContext>(options =>
-            options.UseNpgsql(appConfiguration.GetConnectionString("DefaultConnection"))
+            options.UseNpgsql(appConfiguration.GetConnectionString("EdaMicroDb"))
                 .UseSnakeCaseNamingConvention()
                 .AddInterceptors(new DomainEventsInterceptor()));
         

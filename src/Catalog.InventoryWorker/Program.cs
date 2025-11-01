@@ -5,6 +5,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Configuration;
 using Catalog.Application.IntegrationEvents;
 using EcaMicroEcommerce.ProductWorker;
+using EcaMicroEcommerce.ProductWorker.Extensions;
 using Microsoft.Extensions.DependencyInjection;
 using EcaMicroEcommerce.ProductWorker.IntegrationsEvent.ProductDeactivated;
 using EcaMicroEcommerce.ProductWorker.IntegrationsEvent.ProductReservationHandler;
@@ -19,6 +20,7 @@ var host = Host.CreateDefaultBuilder(args)
         services.AddLogging(configure => configure.AddConsole());
         services.AddDatabase(configuration);
         services.AddProductInventoryServices();
+        services.AddTelemetry(configuration);
         
         AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
         

@@ -36,6 +36,7 @@ services
 
 services.AddHostedService<CatalogOutboxWorker>();
 services.AddHostedService<OrderOutboxWorker>();
+services.AddTelemetry(appConfiguration);
 
 var app = builder.Build();
 

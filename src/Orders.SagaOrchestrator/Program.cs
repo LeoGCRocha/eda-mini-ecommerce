@@ -30,6 +30,7 @@ var host = Host.CreateDefaultBuilder(args)
         services.AddScoped<ISagaOrchestrator, SagaOrchestrator>();
         services.AddScoped<ISagaRepository, SagaRepository>();
         services.AddScoped<IOrderRepository, OrderRepository>();
+        services.AddTelemetry(configuration);
         
         AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
         

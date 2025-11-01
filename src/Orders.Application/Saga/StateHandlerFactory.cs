@@ -3,11 +3,6 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Orders.Application.Saga;
 
-public interface ISagaStateHandlerFactory
-{
-    ISagaStateHandler<TEvent> GetHandler<TEvent>();
-}
-
 public class StateHandlerFactory : ISagaStateHandlerFactory
 {
     private readonly IServiceProvider _serviceProvider;

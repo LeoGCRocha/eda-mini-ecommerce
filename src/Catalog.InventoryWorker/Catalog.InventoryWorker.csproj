@@ -9,12 +9,17 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <PackageReference Include="KafkaFlow" />
-      <PackageReference Include="KafkaFlow.Extensions.Hosting" />
-      <PackageReference Include="KafkaFlow.LogHandler.Console" />
-      <PackageReference Include="KafkaFlow.LogHandler.Microsoft" />
-      <PackageReference Include="KafkaFlow.Microsoft.DependencyInjection" />
-      <PackageReference Include="Microsoft.Extensions.Hosting" />
+        <PackageReference Include="KafkaFlow" />
+        <PackageReference Include="KafkaFlow.Extensions.Hosting" />
+        <PackageReference Include="KafkaFlow.LogHandler.Console" />
+        <PackageReference Include="KafkaFlow.LogHandler.Microsoft" />
+        <PackageReference Include="KafkaFlow.Microsoft.DependencyInjection" />
+        <PackageReference Include="Microsoft.Extensions.Hosting" />
+        <PackageReference Include="Npgsql.OpenTelemetry" />
+        <PackageReference Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" />
+        <PackageReference Include="OpenTelemetry.Extensions.Hosting" />
+        <PackageReference Include="OpenTelemetry.Instrumentation.AspNetCore" />
+        <PackageReference Include="OpenTelemetry.Instrumentation.Http" />
     </ItemGroup>
 
     <ItemGroup>

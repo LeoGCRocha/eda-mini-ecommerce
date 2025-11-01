@@ -7,7 +7,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Catalog.Infra.Migrations.Data
 {
     /// <inheritdoc />
-    public partial class Initial : Migration
+    public partial class InitialCatalog : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -75,6 +75,31 @@ namespace Catalog.Infra.Migrations.Data
                         onDelete: ReferentialAction.Cascade);
                 });
 
+            migrationBuilder.CreateTable(
+                name: "reservations",
+                schema: "catalog",
+                columns: table => new
+                {
+                    id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    order_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    status = table.Column<string>(type: "text", nullable: false),
+                    quantity = table.Column<int>(type: "integer", nullable: false, defaultValue: 0),
+                    occured_at_utc = table.Column<DateTime>(type: "timestamp without time zone", nullable: false, defaultValueSql: "NOW()"),
+                    inventory_item_id = table.Column<Guid>(type: "uuid", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pk_reservations", x => x.id);
+                    table.ForeignKey(
+                        name: "fk_reservations_inventory_items_inventory_item_id",
+                        column: x => x.inventory_item_id,
+                        principalSchema: "catalog",
+                        principalTable: "inventory_items",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
             migrationBuilder.CreateIndex(
                 name: "ix_inventory_items_product_id",
                 schema: "catalog",
@@ -93,17 +118,33 @@ namespace Catalog.Infra.Migrations.Data
                 schema: "catalog",
                 table: "products",
                 column: "name");
+
+            migrationBuilder.CreateIndex(
+                name: "ix_reservations_inventory_item_id",
+                schema: "catalog",
+                table: "reservations",
+                column: "inventory_item_id");
+
+            migrationBuilder.CreateIndex(
+                name: "ix_reservations_order_id",
+                schema: "catalog",
+                table: "reservations",
+                column: "order_id");
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "inventory_items",
+                name: "outbox_integration_events",
                 schema: "catalog");
 
             migrationBuilder.DropTable(
-                name: "outbox_integration_events",
+                name: "reservations",
+                schema: "catalog");
+
+            migrationBuilder.DropTable(
+                name: "inventory_items",
                 schema: "catalog");
 
             migrationBuilder.DropTable(

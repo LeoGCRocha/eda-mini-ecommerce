@@ -19,6 +19,7 @@
       <PackageReference Include="KafkaFlow.Serializer.JsonCore" />
       <PackageReference Include="Microsoft.EntityFrameworkCore" />
       <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" />
+      <PackageReference Include="OpenTelemetry.Api" />
     </ItemGroup>
 
 </Project>

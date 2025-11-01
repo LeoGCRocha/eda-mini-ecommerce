@@ -15,13 +15,14 @@ public class ProductReservationMiddleware : IMessageMiddleware
         var sp = context.DependencyResolver;
         var bytes = context.Message.Value as byte[];
         var payloadString = bytes is null ? "" : System.Text.Encoding.UTF8.GetString(bytes);
-        
+
         var message = JsonSerializer.Deserialize<ProductReservationEvent>(payloadString,
             new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
 
         if (message is not null)
         {
-            var handler = new ProductInventoryReservationHandler(sp.Resolve<IProductInventoryService>(), sp.Resolve<ILogger<ProductInventoryReservationHandler>>());
+            var handler = new ProductInventoryReservationHandler(sp.Resolve<IProductInventoryService>(),
+                sp.Resolve<ILogger<ProductInventoryReservationHandler>>());
             await handler.Handle(context, message);
         }
     }
