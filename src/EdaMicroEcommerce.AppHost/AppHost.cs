@@ -5,7 +5,7 @@ var postgres = builder.AddPostgres("Postgres")
     .WithDataVolume()
     .WithLifetime(ContainerLifetime.Persistent);
 
-var kafka = builder.AddKafka("KafkaMessageBroker")
+var kafka = builder.AddKafka("KafkaMessageBroker", 59481)
     .WithKafkaUI(kafkaUi => kafkaUi.WithHostPort(9100))
     .WithDataVolume()
     .WithLifetime(ContainerLifetime.Persistent);

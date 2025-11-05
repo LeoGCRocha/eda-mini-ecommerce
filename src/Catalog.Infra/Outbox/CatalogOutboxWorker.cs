@@ -1,6 +1,8 @@
+using System.Diagnostics;
 using MediatR;
 using Catalog.Application.IntegrationEvents;
 using Catalog.Application.IntegrationEvents.Products.ProductDeactivated;
+using Catalog.Application.Observability;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -43,6 +45,22 @@ public class CatalogOutboxWorker(IServiceProvider serviceProvider, ILogger<Catal
                     // at least once guarantee
                     try
                     {
+                        ActivityContext parentContext = default;
+                        ActivitySource workerSource = Source.CatalogSource;
+
+                        if (!string.IsNullOrEmpty(@event.TraceId) && !string.IsNullOrEmpty(@event.SpanId))
+                            parentContext = new ActivityContext(ActivityTraceId.CreateFromString(@event.TraceId),
+                                ActivitySpanId.CreateFromString(@event.SpanId),
+                                ActivityTraceFlags.Recorded);
+
+                        using var activity = workerSource.StartActivity(
+                            $"Process Event {@event.Type}",
+                            ActivityKind.Consumer,
+                            parentContext
+                        );
+
+                        activity?.SetTag("messaging.system", "kafka");
+
                         switch (@event.Type)
                         {
                             case EventType.ProductDeactivated:
@@ -73,7 +91,7 @@ public class CatalogOutboxWorker(IServiceProvider serviceProvider, ILogger<Catal
                 });
 
                 await dbContext.SaveChangesAsync(stoppingToken);
-                await Task.Delay(TimeSpan.FromSeconds(5), stoppingToken);
+                await Task.Delay(TimeSpan.FromSeconds(30), stoppingToken);
             }
             catch (Exception ex)
             {

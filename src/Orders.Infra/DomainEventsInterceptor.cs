@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using Orders.Application.IntegrationEvents;
 using Orders.Domain.Entities.Events;
 
@@ -30,6 +31,8 @@ public class DomainEventsInterceptor : SaveChangesInterceptor
         InterceptionResult<int> result,
         CancellationToken cancellationToken = new CancellationToken())
     {
+        var currentActivity = Activity.Current; 
+        
         var context = eventData.Context;
 
         if (context is null)
@@ -47,7 +50,17 @@ public class DomainEventsInterceptor : SaveChangesInterceptor
         foreach (var domainEvt in domainEvents)
         {
             if (_factoryDictionary.TryGetValue(domainEvt.GetType(), out var factoryFunc))
-                outbox.Add(factoryFunc(domainEvt));
+            {
+                var outboxObject = factoryFunc(domainEvt);
+
+                if (currentActivity is not null)
+                {
+                    outboxObject.TraceId = currentActivity.TraceId.ToHexString();
+                    outboxObject.SpanId = currentActivity.SpanId.ToHexString();
+                }
+
+                outbox.Add(outboxObject);
+            }
         }
 
         foreach (var entry in entriesAggregate)

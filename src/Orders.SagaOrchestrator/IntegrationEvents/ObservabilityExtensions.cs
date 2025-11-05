@@ -1,3 +1,4 @@
+using EdaMicroEcommerce.Application.Outbox;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Npgsql;
@@ -28,7 +29,8 @@ public static class ObservabilityExtensions
                 tracing
                     .AddAspNetCoreInstrumentation()
                     .AddHttpClientInstrumentation()
-                    .AddNpgsql();
+                    .AddNpgsql()
+                    .AddSource(nameof(IIntegrationEventPublisher));
 
                 tracing.AddOtlpExporter(options =>
                 {

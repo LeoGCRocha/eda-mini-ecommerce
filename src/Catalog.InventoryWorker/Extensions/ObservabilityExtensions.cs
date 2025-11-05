@@ -1,3 +1,4 @@
+using EdaMicroEcommerce.Infra.MessageBroker;
 using Npgsql;
 using OpenTelemetry.Trace;
 using OpenTelemetry.Resources;
@@ -28,7 +29,8 @@ public static class ObservabilityExtensions
                 tracing
                     .AddAspNetCoreInstrumentation()
                     .AddHttpClientInstrumentation()
-                    .AddNpgsql();
+                    .AddNpgsql()
+                    .AddSource("CatalogSource");
 
                 tracing.AddOtlpExporter(options =>
                 {

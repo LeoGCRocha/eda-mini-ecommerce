@@ -5,7 +5,7 @@ using Orders.Application.Saga;
 using Orders.Domain.Entities.Events;
 using Orders.Saga.IntegrationEvents;
 
-namespace Orders.Saga;
+namespace Orders.Saga.MessageMiddlewares;
 
 public class ProductReservedMiddleware : IMessageMiddleware
 {

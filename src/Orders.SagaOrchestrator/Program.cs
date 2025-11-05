@@ -12,8 +12,9 @@ using Orders.Application.Saga.States;
 using Orders.Domain.Entities.Events;
 using Orders.Infra;
 using Orders.Infra.Repository;
-using Orders.Saga;
+using Orders.Saga.Extensions;
 using Orders.Saga.IntegrationEvents;
+using Orders.Saga.MessageMiddlewares;
 
 var host = Host.CreateDefaultBuilder(args)
     .ConfigureServices((hostContext, services) =>
@@ -51,7 +52,6 @@ var host = Host.CreateDefaultBuilder(args)
 
         services.AddKafkaFlowHostedService(kafka =>
         {
-            // TODO: Ao dar erro ele ta consumindo a mensagem ainda assim
             kafka.UseMicrosoftLog();
             kafka.AddCluster(cluster =>
                 cluster.WithBrokers([messageBroker.BootstrapServers])

@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -6,6 +7,7 @@ using Microsoft.Extensions.Logging;
 using Orders.Application.IntegrationEvents;
 using Orders.Application.IntegrationEvents.Orders;
 using Orders.Application.IntegrationEvents.Products;
+using Orders.Application.Observability;
 
 namespace Orders.Infra.Outbox;
 
@@ -44,6 +46,22 @@ public class OrderOutboxWorker(IServiceProvider serviceProvider, ILogger<OrderOu
                     // at least once guarantee
                     try
                     {
+                        ActivityContext parentContext = default;
+                        ActivitySource workerSource = Source.OrderSource;
+                        
+                        if (!string.IsNullOrEmpty(@event.TraceId) && !string.IsNullOrEmpty(@event.SpanId))
+                            parentContext = new ActivityContext(ActivityTraceId.CreateFromString(@event.TraceId),
+                                ActivitySpanId.CreateFromString(@event.SpanId),
+                                ActivityTraceFlags.Recorded);
+
+                        using var activity = workerSource.StartActivity(
+                            $"Process Event {@event.Type}",
+                            ActivityKind.Consumer,
+                            parentContext
+                        );
+
+                        activity?.SetTag("messaging.system", "kafka");
+                        
                         switch (@event.Type)
                         {
                             case EventType.OrderCreated:

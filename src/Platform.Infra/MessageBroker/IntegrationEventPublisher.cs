@@ -12,14 +12,13 @@ namespace EdaMicroEcommerce.Infra.MessageBroker;
 public class IntegrationEventPublisher(IProducerAccessor producerAccessor, ILogger<IntegrationEventPublisher> logger)
     : IIntegrationEventPublisher
 {
-    private static readonly ActivitySource Activity = new(nameof(IntegrationEventPublisher));
     private static readonly TextMapPropagator Propagator = Propagators.DefaultTextMapPropagator;
 
     public async Task PublishOnTopicAsync<T>(T payload, string producerName, string? key = null)
     {
         try
         {
-            using var activity = Activity.StartActivity("Sending message through broker.", ActivityKind.Producer);
+            using var activity = Activity.Current;
 
             var traceHeaders = new MessageHeaders();
             if (activity is not null)

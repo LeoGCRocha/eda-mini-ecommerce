@@ -12,8 +12,8 @@ using Orders.Infra;
 namespace Orders.Infra.Migrations.Data
 {
     [DbContext(typeof(OrderContext))]
-    [Migration("20251029005951_OrdersAdapt")]
-    partial class OrdersAdapt
+    [Migration("20251105220244_Initial")]
+    partial class Initial
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -37,7 +37,7 @@ namespace Orders.Infra.Migrations.Data
 
                     b.Property<DateTime>("CreatedAtUtc")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("timestamp without time zone")
+                        .HasColumnType("timestamp with time zone")
                         .HasColumnName("created_at_utc")
                         .HasDefaultValueSql("NOW()");
 
@@ -53,7 +53,7 @@ namespace Orders.Infra.Migrations.Data
                         .HasColumnName("payload");
 
                     b.Property<DateTime?>("ProcessedAtUtc")
-                        .HasColumnType("timestamp without time zone")
+                        .HasColumnType("timestamp with time zone")
                         .HasColumnName("processed_at_utc");
 
                     b.Property<int>("RetryCount")
@@ -61,6 +61,16 @@ namespace Orders.Infra.Migrations.Data
                         .HasColumnType("integer")
                         .HasDefaultValue(0)
                         .HasColumnName("retry_count");
+
+                    b.Property<string>("SpanId")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("span_id");
+
+                    b.Property<string>("TraceId")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("trace_id");
 
                     b.Property<int>("Type")
                         .HasColumnType("integer")
@@ -137,15 +147,16 @@ namespace Orders.Infra.Migrations.Data
                         .HasColumnName("net_amount");
 
                     b.Property<DateTime?>("PaymentDate")
-                        .HasColumnType("timestamp without time zone")
+                        .HasColumnType("timestamp with time zone")
                         .HasColumnName("payment_date");
 
                     b.Property<Guid?>("PaymentId")
                         .HasColumnType("uuid")
                         .HasColumnName("payment_id");
 
-                    b.Property<int>("Status")
-                        .HasColumnType("integer")
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("text")
                         .HasColumnName("status");
 
                     b.Property<decimal>("TotalAmount")
@@ -154,13 +165,13 @@ namespace Orders.Infra.Migrations.Data
 
                     b.Property<DateTime>("created_at_utc")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("timestamp without time zone")
+                        .HasColumnType("timestamp with time zone")
                         .HasColumnName("created_at_utc")
                         .HasDefaultValueSql("NOW()");
 
                     b.Property<DateTime>("updated_at_utc")
                         .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("timestamp without time zone")
+                        .HasColumnType("timestamp with time zone")
                         .HasColumnName("updated_at_utc")
                         .HasDefaultValueSql("NOW()");
 
@@ -206,8 +217,9 @@ namespace Orders.Infra.Migrations.Data
                                 .HasColumnType("integer")
                                 .HasColumnName("quantity");
 
-                            b1.Property<int>("ReservationStatus")
-                                .HasColumnType("integer")
+                            b1.Property<string>("ReservationStatus")
+                                .IsRequired()
+                                .HasColumnType("text")
                                 .HasColumnName("reservation_status");
 
                             b1.Property<decimal>("UnitPrice")

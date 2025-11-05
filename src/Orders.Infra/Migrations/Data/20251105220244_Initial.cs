@@ -26,11 +26,11 @@ namespace Orders.Infra.Migrations.Data
                     currency = table.Column<string>(type: "text", nullable: false, defaultValue: "BRL"),
                     discount_amount = table.Column<decimal>(type: "numeric(18,2)", nullable: false, defaultValue: 0m),
                     net_amount = table.Column<decimal>(type: "numeric(18,2)", nullable: false),
-                    status = table.Column<int>(type: "integer", nullable: false),
+                    status = table.Column<string>(type: "text", nullable: false),
                     payment_id = table.Column<Guid>(type: "uuid", nullable: true),
-                    payment_date = table.Column<DateTime>(type: "timestamp without time zone", nullable: true),
-                    created_at_utc = table.Column<DateTime>(type: "timestamp without time zone", nullable: false, defaultValueSql: "NOW()"),
-                    updated_at_utc = table.Column<DateTime>(type: "timestamp without time zone", nullable: false, defaultValueSql: "NOW()")
+                    payment_date = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    created_at_utc = table.Column<DateTime>(type: "timestamp with time zone", nullable: false, defaultValueSql: "NOW()"),
+                    updated_at_utc = table.Column<DateTime>(type: "timestamp with time zone", nullable: false, defaultValueSql: "NOW()")
                 },
                 constraints: table =>
                 {
@@ -45,11 +45,13 @@ namespace Orders.Infra.Migrations.Data
                     id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     type = table.Column<int>(type: "integer", nullable: false),
-                    processed_at_utc = table.Column<DateTime>(type: "timestamp without time zone", nullable: true),
+                    processed_at_utc = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
                     payload = table.Column<string>(type: "jsonb", nullable: false),
                     retry_count = table.Column<int>(type: "integer", nullable: false, defaultValue: 0),
                     is_dead_letter = table.Column<bool>(type: "boolean", nullable: false, defaultValue: false),
-                    created_at_utc = table.Column<DateTime>(type: "timestamp without time zone", nullable: false, defaultValueSql: "NOW()")
+                    created_at_utc = table.Column<DateTime>(type: "timestamp with time zone", nullable: false, defaultValueSql: "NOW()"),
+                    trace_id = table.Column<string>(type: "text", nullable: false),
+                    span_id = table.Column<string>(type: "text", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -65,6 +67,7 @@ namespace Orders.Infra.Migrations.Data
                     quantity = table.Column<int>(type: "integer", nullable: false),
                     product_id = table.Column<Guid>(type: "uuid", nullable: false),
                     unit_price = table.Column<decimal>(type: "numeric(18,2)", nullable: false),
+                    reservation_status = table.Column<string>(type: "text", nullable: false),
                     order_id = table.Column<Guid>(type: "uuid", nullable: false)
                 },
                 constraints: table =>
@@ -72,6 +75,30 @@ namespace Orders.Infra.Migrations.Data
                     table.PrimaryKey("pk_order_items", x => x.id);
                     table.ForeignKey(
                         name: "fk_order_items_orders_order_id",
+                        column: x => x.order_id,
+                        principalSchema: "orders",
+                        principalTable: "orders",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "saga_entity",
+                schema: "orders",
+                columns: table => new
+                {
+                    order_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    status = table.Column<string>(type: "text", nullable: false),
+                    created_at_utc = table.Column<DateTime>(type: "timestamp without time zone", nullable: false, defaultValueSql: "NOW()"),
+                    updated_at_utc = table.Column<DateTime>(type: "timestamp without time zone", nullable: false, defaultValueSql: "NOW()")
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pk_saga_entity", x => x.order_id);
+                    table.ForeignKey(
+                        name: "fk_saga_entity_orders_order_id",
                         column: x => x.order_id,
                         principalSchema: "orders",
                         principalTable: "orders",
@@ -113,6 +140,10 @@ namespace Orders.Infra.Migrations.Data
 
             migrationBuilder.DropTable(
                 name: "outbox_integration_events",
+                schema: "orders");
+
+            migrationBuilder.DropTable(
+                name: "saga_entity",
                 schema: "orders");
 
             migrationBuilder.DropTable(

@@ -34,7 +34,7 @@ namespace Orders.Infra.Migrations.Data
 
                     b.Property<DateTime>("CreatedAtUtc")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("timestamp without time zone")
+                        .HasColumnType("timestamp with time zone")
                         .HasColumnName("created_at_utc")
                         .HasDefaultValueSql("NOW()");
 
@@ -50,7 +50,7 @@ namespace Orders.Infra.Migrations.Data
                         .HasColumnName("payload");
 
                     b.Property<DateTime?>("ProcessedAtUtc")
-                        .HasColumnType("timestamp without time zone")
+                        .HasColumnType("timestamp with time zone")
                         .HasColumnName("processed_at_utc");
 
                     b.Property<int>("RetryCount")
@@ -58,6 +58,16 @@ namespace Orders.Infra.Migrations.Data
                         .HasColumnType("integer")
                         .HasDefaultValue(0)
                         .HasColumnName("retry_count");
+
+                    b.Property<string>("SpanId")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("span_id");
+
+                    b.Property<string>("TraceId")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("trace_id");
 
                     b.Property<int>("Type")
                         .HasColumnType("integer")
@@ -134,7 +144,7 @@ namespace Orders.Infra.Migrations.Data
                         .HasColumnName("net_amount");
 
                     b.Property<DateTime?>("PaymentDate")
-                        .HasColumnType("timestamp without time zone")
+                        .HasColumnType("timestamp with time zone")
                         .HasColumnName("payment_date");
 
                     b.Property<Guid?>("PaymentId")
@@ -152,13 +162,13 @@ namespace Orders.Infra.Migrations.Data
 
                     b.Property<DateTime>("created_at_utc")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("timestamp without time zone")
+                        .HasColumnType("timestamp with time zone")
                         .HasColumnName("created_at_utc")
                         .HasDefaultValueSql("NOW()");
 
                     b.Property<DateTime>("updated_at_utc")
                         .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("timestamp without time zone")
+                        .HasColumnType("timestamp with time zone")
                         .HasColumnName("updated_at_utc")
                         .HasDefaultValueSql("NOW()");
 

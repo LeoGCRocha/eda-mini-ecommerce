@@ -10,6 +10,8 @@ public class OutboxIntegrationEvent<T> : IRequest where T : Enum
     public int RetryCount { get; private set; }
     public bool IsDeadLetter { get; private set; }
     public DateTime CreatedAtUtc { get; set; }
+    public string TraceId { get; set; } = string.Empty;
+    public string SpanId { get; set; } = string.Empty;
 
     protected OutboxIntegrationEvent(T type, string payload)
     {
