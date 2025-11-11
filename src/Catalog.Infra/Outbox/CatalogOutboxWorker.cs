@@ -91,7 +91,7 @@ public class CatalogOutboxWorker(IServiceProvider serviceProvider, ILogger<Catal
                 });
 
                 await dbContext.SaveChangesAsync(stoppingToken);
-                await Task.Delay(TimeSpan.FromSeconds(30), stoppingToken);
+                await Task.Delay(TimeSpan.FromSeconds(5), stoppingToken);
             }
             catch (Exception ex)
             {

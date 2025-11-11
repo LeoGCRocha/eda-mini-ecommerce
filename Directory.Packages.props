@@ -10,6 +10,7 @@
     <PackageVersion Include="Carter" Version="8.0.0" />
     <PackageVersion Include="EFCore.NamingConventions" Version="9.0.0" />
     <PackageVersion Include="KafkaFlow" Version="4.0.1" />
+    <PackageVersion Include="KafkaFlow.Abstractions" Version="4.0.1" />
     <PackageVersion Include="KafkaFlow.Extensions.Hosting" Version="4.0.1" />
     <PackageVersion Include="KafkaFlow.LogHandler.Console" Version="4.0.1" />
     <PackageVersion Include="KafkaFlow.LogHandler.Microsoft" Version="4.0.1" />
@@ -29,6 +30,7 @@
     <PackageVersion Include="OpenTelemetry.Extensions.Hosting" Version="1.13.1" />
     <PackageVersion Include="OpenTelemetry.Instrumentation.AspNetCore" Version="1.13.0" />
     <PackageVersion Include="OpenTelemetry.Instrumentation.Http" Version="1.13.0" />
+    <PackageVersion Include="Scrutor" Version="6.1.0" />
     <PackageVersion Include="Swashbuckle.AspNetCore" Version="9.0.4" />
   </ItemGroup>
 </Project>

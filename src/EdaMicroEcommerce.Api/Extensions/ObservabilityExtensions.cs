@@ -29,7 +29,7 @@ public static class ObservabilityExtensions
                     .AddHttpClientInstrumentation()
                     .AddNpgsql()
                     .AddSource("CatalogSource")
-                    .AddSource("OrderSource");
+                    .AddSource("OrdersSource");
 
                 tracing.AddOtlpExporter(options =>
                 {

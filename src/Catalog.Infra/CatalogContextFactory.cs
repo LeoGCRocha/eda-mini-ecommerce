@@ -1,7 +1,8 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
-using Catalog.Infra;
 using Microsoft.Extensions.Configuration;
+
+namespace Catalog.Infra;
 
 public class CatalogContextFactory : IDesignTimeDbContextFactory<CatalogContext>
 {

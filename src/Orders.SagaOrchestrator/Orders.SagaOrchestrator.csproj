@@ -15,6 +15,7 @@
         <PackageReference Include="KafkaFlow.LogHandler.Microsoft" />
         <PackageReference Include="KafkaFlow.Microsoft.DependencyInjection" />
         <PackageReference Include="Microsoft.Extensions.Hosting" />
+        <PackageReference Include="Scrutor" />
     </ItemGroup>
 
     <ItemGroup>

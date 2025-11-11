@@ -24,7 +24,7 @@ public class SagaOrchestrator(
         // 1. Buscar o contexto atual do SAGA
         using var activity = Source.OrderSource.StartActivity($"{nameof(SagaOrchestrator)} : Executing Orchestration", ActivityKind.Server);
 
-        activity?.AddTag("order.id", orderId);
+        activity?.AddTag("order.id", orderId.Value.ToString());
         activity?.AddTag("saga.event.type", typeof(T).Name);
         
         var context = await BuildContextAsync(orderId, cts);
@@ -38,7 +38,7 @@ public class SagaOrchestrator(
         if (!handler.CanHandle(context.SagaEntity?.Status))
         {
             logger.LogWarning(
-                "Handler {HandlerType} não pode lidar com o evento no status {Status} para o pedido {OrderId}",
+                "Handler {HandlerType} cannot handle with the current event on status {Status} to OrderId({OrderId})",
                 handler.GetType().Name,
                 context.SagaEntity?.Status,
                 orderId);
@@ -80,6 +80,9 @@ public class SagaOrchestrator(
                 if (sagaContext.SagaEntity != null)
                     sagaContext.SagaEntity.Status = (SagaStatus)sagaTransitionResult.NewStatus;
 
+            foreach (var sagaEvent in sagaTransitionResult.EventsToPublish)
+                sagaEvent.SetTraceAndSpanFromCurrentContext();
+            
             if (sagaTransitionResult.EventsToPublish.Count > 0)
                 await orderContext.OutboxIntegrationEvents.AddRangeAsync(sagaTransitionResult.EventsToPublish);
 
@@ -87,7 +90,7 @@ public class SagaOrchestrator(
         }
         catch (Exception ex)
         {
-            throw new GenericException($"Algo errado aconteceu durante a transição de estado, {ex.Message}");
+            throw new GenericException($"Something bad happens during state transition, {ex.Message}");
         }
     }
 
@@ -95,7 +98,7 @@ public class SagaOrchestrator(
     {
         var orderObject = await orderRepository.GetOrderByIdAsync(orderId, cts);
         if (orderObject is null)
-            throw new GenericException($"Não foi possível encontrar a Order: {orderId.Value}, saga invalido.");
+            throw new GenericException($"OrderId: {orderId.Value}, not found, invalid SAGA.");
         var sagaEntity = await sagaRepository.GetByOrderIdAsync(orderId, cts);
 
         return new SagaContext(orderObject, sagaEntity);

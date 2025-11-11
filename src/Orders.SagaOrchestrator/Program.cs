@@ -1,4 +1,5 @@
-﻿using EdaMicroEcommerce.Infra.Configuration;
+﻿using EdaMicroEcommerce.Application;
+using EdaMicroEcommerce.Infra.Configuration;
 using KafkaFlow;
 using KafkaFlow.Serializer;
 using Microsoft.Extensions.Hosting;
@@ -6,6 +7,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Orders.Application.IntegrationEvents;
+using Orders.Application.Observability;
 using Orders.Application.Repositories;
 using Orders.Application.Saga;
 using Orders.Application.Saga.States;
@@ -19,7 +21,6 @@ using Orders.Saga.MessageMiddlewares;
 var host = Host.CreateDefaultBuilder(args)
     .ConfigureServices((hostContext, services) =>
     {
-        // TODO: Agrupar mesmo ID em uma unica request pra não precisar mandar uma mensagem a mais pro broker...
         var configuration = hostContext.Configuration;
 
         services.AddLogging(configure => configure.AddConsole());
@@ -31,6 +32,7 @@ var host = Host.CreateDefaultBuilder(args)
         services.AddScoped<ISagaOrchestrator, SagaOrchestrator>();
         services.AddScoped<ISagaRepository, SagaRepository>();
         services.AddScoped<IOrderRepository, OrderRepository>();
+        services.AddSingleton(Source.OrderSource);
         services.AddTelemetry(configuration);
         
         AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
@@ -72,6 +74,7 @@ var host = Host.CreateDefaultBuilder(args)
                         consumer.AddMiddlewares(middlewares =>
                         {
                             middlewares.AddDeserializer<JsonCoreDeserializer>();
+                            middlewares.Add<MessageContextPropagationMiddleware>();
                             middlewares.AddTypedHandlers(handlers =>
                             {
                                 handlers.WithHandlerLifetime(InstanceLifetime.Scoped);
@@ -102,6 +105,7 @@ var host = Host.CreateDefaultBuilder(args)
                         // TODO: Adicionar um consumo em BATCH EM ALGUM LUGAR QUE FAÇA SENTIDO PRA ESTRESSAR A LIB
                         consumer.AddMiddlewares(middlewares =>
                         {
+                            middlewares.Add<MessageContextPropagationMiddleware>();
                             middlewares.Add<ProductReservedMiddleware>();
                         });
                     })

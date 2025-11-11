@@ -8,8 +8,10 @@
     </PropertyGroup>
 
     <ItemGroup>
+      <PackageReference Include="KafkaFlow.Abstractions" />
       <PackageReference Include="MediatR" />
       <PackageReference Include="MediatR.Extensions.Microsoft.DependencyInjection" />
+      <PackageReference Include="OpenTelemetry.Api" />
       <PackageReference Include="Swashbuckle.AspNetCore" />
     </ItemGroup>
 

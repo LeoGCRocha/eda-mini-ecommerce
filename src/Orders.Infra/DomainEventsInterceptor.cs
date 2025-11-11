@@ -1,14 +1,12 @@
 using System.Diagnostics;
 using Orders.Application.IntegrationEvents;
 using Orders.Domain.Entities.Events;
-
-namespace Orders.Infra;
-
 using EdaMicroEcommerce.Application.Outbox;
 using EdaMicroEcommerce.Domain.BuildingBlocks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 
+namespace Orders.Infra;
 
 public class DomainEventsInterceptor : SaveChangesInterceptor
 {

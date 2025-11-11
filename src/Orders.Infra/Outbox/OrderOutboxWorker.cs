@@ -92,7 +92,7 @@ public class OrderOutboxWorker(IServiceProvider serviceProvider, ILogger<OrderOu
                 });
 
                 await dbContext.SaveChangesAsync(stoppingToken);
-                await Task.Delay(TimeSpan.FromSeconds(30), stoppingToken);
+                await Task.Delay(TimeSpan.FromSeconds(5), stoppingToken);
             }
             catch (Exception ex)
             {

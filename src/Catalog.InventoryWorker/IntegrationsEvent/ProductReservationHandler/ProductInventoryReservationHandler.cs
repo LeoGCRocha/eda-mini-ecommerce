@@ -1,33 +1,39 @@
 using KafkaFlow;
+using System.Diagnostics;
 using Catalog.Domain.Entities;
-using EdaMicroEcommerce.Domain.Enums;
 using Microsoft.Extensions.Logging;
+using EdaMicroEcommerce.Domain.Enums;
 using Platform.SharedContracts.IntegrationEvents.Products;
 
 namespace EcaMicroEcommerce.ProductWorker.IntegrationsEvent.ProductReservationHandler;
 
-public class ProductInventoryReservationHandler : IMessageHandler<ProductReservationEvent>
+public class ProductInventoryReservationHandler(
+    IProductInventoryService productInventoryService,
+    ILogger<ProductInventoryReservationHandler> logger)
+    : IMessageHandler<ProductReservationEvent>
 {
-    private readonly IProductInventoryService _productInventoryService;
-    private readonly ILogger<ProductInventoryReservationHandler> _logger;
-
-    public ProductInventoryReservationHandler(IProductInventoryService productInventoryService, ILogger<ProductInventoryReservationHandler> logger)
-    {
-        _productInventoryService = productInventoryService;
-        _logger = logger;
-    }
-
     public async Task Handle(IMessageContext context, ProductReservationEvent message)
     {
+        var activity = Activity.Current;
+
+        activity?.SetTag("order.id", message.OrderId.Value.ToString());
+        activity?.SetTag("product.id", message.ProductId.Value.ToString());
+        activity?.SetTag("operation.type", nameof(message.ReservationType));
+        
         // <WARNING> Aqui não estamos lidando indepo, apesar do SAGA não enviar duplicado, se por algum motivo/intermitência ou má implementação
         // ter um segundo envio aqui teriamos um problema
         if (message.ReservationType == ReservationEventType.Reservation)
         {
-            _logger.LogWarning("Realizando reserva do produto {Product}", message.ProductId.Value);
+            activity?.AddEvent(new ActivityEvent("inventory.service.call", 
+                tags: new ActivityTagsCollection { { "operation", "ReserveProductIfAvailable" } }));
+            
+            logger.LogWarning("Realizando reserva do produto {Product}", message.ProductId.Value);
         
-            var successfulReserved = await _productInventoryService.ReserveProductIfAvailable(message.ProductId, message.Quantity, message.OrderId);
-        
-            _logger.LogWarning(
+            var successfulReserved = await productInventoryService.ReserveProductIfAvailable(message.ProductId, message.Quantity, message.OrderId);
+
+            activity?.AddTag("reservation.successful", successfulReserved);
+            
+            logger.LogWarning(
                 successfulReserved
                     ? "Reserva do produto {Product}, realizada com sucesso"
                     : "Não foi possível realizar a reserva do produto {ProductId}", message.ProductId.Value);
@@ -38,9 +44,9 @@ public class ProductInventoryReservationHandler : IMessageHandler<ProductReserva
         // <WARNING> Aqui temos o mesmo problema de indepotencia, apesar de controlado no SAGA não é controlado aqui podendo gerar uma incoerência
         if (message.ReservationType == ReservationEventType.Cancellation)
         {
-            _logger.LogWarning("Cancelando a reserva do produto {Product}", message.ProductId.Value);
+            logger.LogWarning("Canceling product reservation {Product}", message.ProductId.Value);
 
-            await _productInventoryService.CancelProductReservation(message.OrderId, message.ProductId, message.Quantity);
+            await productInventoryService.CancelProductReservation(message.OrderId, message.ProductId, message.Quantity);
             
             return;
         }

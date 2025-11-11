@@ -30,7 +30,7 @@ public static class ObservabilityExtensions
                     .AddAspNetCoreInstrumentation()
                     .AddHttpClientInstrumentation()
                     .AddNpgsql()
-                    .AddSource(nameof(IIntegrationEventPublisher));
+                    .AddSource("OrdersSource");
 
                 tracing.AddOtlpExporter(options =>
                 {

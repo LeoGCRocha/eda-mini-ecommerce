@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using MediatR;
 
 namespace EdaMicroEcommerce.Application.Outbox;
@@ -35,6 +36,16 @@ public class OutboxIntegrationEvent<T> : IRequest where T : Enum
     public void MarkAsDead()
     {
         IsDeadLetter = true;
+    }
+
+    public void SetTraceAndSpanFromCurrentContext()
+    {
+        var currentActivity = Activity.Current;
+
+        if (currentActivity is null) return;
+
+        TraceId = currentActivity.TraceId.ToHexString();
+        SpanId = currentActivity.SpanId.ToHexString();
     }
     
     private OutboxIntegrationEvent()
