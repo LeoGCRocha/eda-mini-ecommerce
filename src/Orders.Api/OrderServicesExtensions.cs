@@ -31,7 +31,7 @@ public static class OrderServicesExtensions
     private static IServiceCollection AddDatabase(this IServiceCollection services, IConfiguration appConfiguration)
     {
         services.AddDbContext<OrderContext>(options =>
-            options.UseNpgsql(appConfiguration.GetConnectionString("DefaultConnection"))
+            options.UseNpgsql(appConfiguration.GetConnectionString("EdaMicroDb"))
                 .UseSnakeCaseNamingConvention()
                 .AddInterceptors(new DomainEventsInterceptor()));
 

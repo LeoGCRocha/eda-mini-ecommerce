@@ -7,7 +7,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\..\Plataform.Domain\Plataform.Domain.csproj" />
+      <ProjectReference Include="..\Platform.Domain\Platform.Domain.csproj" />
       <ProjectReference Include="..\Platform.SharedContracts\Platform.SharedContracts.csproj" />
     </ItemGroup>
 

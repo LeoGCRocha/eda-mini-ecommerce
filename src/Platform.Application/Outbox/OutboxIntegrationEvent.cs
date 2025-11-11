@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using MediatR;
 
 namespace EdaMicroEcommerce.Application.Outbox;
@@ -10,6 +11,8 @@ public class OutboxIntegrationEvent<T> : IRequest where T : Enum
     public int RetryCount { get; private set; }
     public bool IsDeadLetter { get; private set; }
     public DateTime CreatedAtUtc { get; set; }
+    public string TraceId { get; set; } = string.Empty;
+    public string SpanId { get; set; } = string.Empty;
 
     protected OutboxIntegrationEvent(T type, string payload)
     {
@@ -33,6 +36,16 @@ public class OutboxIntegrationEvent<T> : IRequest where T : Enum
     public void MarkAsDead()
     {
         IsDeadLetter = true;
+    }
+
+    public void SetTraceAndSpanFromCurrentContext()
+    {
+        var currentActivity = Activity.Current;
+
+        if (currentActivity is null) return;
+
+        TraceId = currentActivity.TraceId.ToHexString();
+        SpanId = currentActivity.SpanId.ToHexString();
     }
     
     private OutboxIntegrationEvent()

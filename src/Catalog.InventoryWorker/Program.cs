@@ -1,13 +1,15 @@
-﻿using System.Text.Json;
+﻿using System.Diagnostics;
 using KafkaFlow;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Configuration;
 using Catalog.Application.IntegrationEvents;
+using Catalog.Application.Observability;
 using EcaMicroEcommerce.ProductWorker;
+using EcaMicroEcommerce.ProductWorker.Extensions;
 using Microsoft.Extensions.DependencyInjection;
 using EcaMicroEcommerce.ProductWorker.IntegrationsEvent.ProductDeactivated;
-using EcaMicroEcommerce.ProductWorker.IntegrationsEvent.ProductReservationHandler;
+using EdaMicroEcommerce.Application;
 using EdaMicroEcommerce.Infra.Configuration;
 using KafkaFlow.Serializer;
 
@@ -19,6 +21,7 @@ var host = Host.CreateDefaultBuilder(args)
         services.AddLogging(configure => configure.AddConsole());
         services.AddDatabase(configuration);
         services.AddProductInventoryServices();
+        services.AddTelemetry(configuration);
         
         AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
         
@@ -39,7 +42,7 @@ var host = Host.CreateDefaultBuilder(args)
                 out var productReservationConsumer))
             throw new ArgumentException("É esperado as configuração de consumer para produto.");
 
-
+        services.AddSingleton(Source.CatalogSource);
         services.AddKafkaFlowHostedService(kafka =>
         {
             // <WARNING> Em termos práticos fiz tudo com auto commit habilitado, mas pode não ser a melhor pratica num
@@ -65,6 +68,7 @@ var host = Host.CreateDefaultBuilder(args)
                         consumer.AddMiddlewares(middlewares =>
                         {
                             middlewares.AddDeserializer<JsonCoreDeserializer>();
+                            middlewares.Add<MessageContextPropagationMiddleware>();
                             middlewares.AddTypedHandlers(handlers =>
                             {
                                 handlers.AddHandler<ProductDeactivatedMessageHandler>();
@@ -87,6 +91,7 @@ var host = Host.CreateDefaultBuilder(args)
 
                         consumer.AddMiddlewares(middlewares =>
                         {
+                            middlewares.Add<MessageContextPropagationMiddleware>();
                            // <WARNING> Tive problemas com o JSON CORE DESERIALIZER 
                            middlewares.Add<ProductReservationMiddleware>();
                         });

@@ -2,11 +2,11 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EdaMicroEcommerce.Api", "src\EdaMicroEcommerce.Api\EdaMicroEcommerce.Api.csproj", "{76B3D80A-AB5F-4225-B2CF-D9AA35D8CF12}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Plataform.Domain", "Plataform.Domain\Plataform.Domain.csproj", "{1BC49187-6388-4FA1-A1A4-74299A27D8B0}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Platform.Domain", "src\Platform.Domain\Platform.Domain.csproj", "{1BC49187-6388-4FA1-A1A4-74299A27D8B0}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Platform.Application", "src\Platform.Application\Platform.Application.csproj", "{3417B3F6-85F8-44FB-8D65-91C978AF937E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Plataform.Infra", "src\Plataform.Infra\Plataform.Infra.csproj", "{50AE6A60-3C2C-4F31-B02B-FFA77D1FE517}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Platform.Infra", "src\Platform.Infra\Platform.Infra.csproj", "{50AE6A60-3C2C-4F31-B02B-FFA77D1FE517}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{0C8CF7AF-7D28-43F8-B7A8-7ADC78443455}"
 	ProjectSection(SolutionItems) = preProject
@@ -48,6 +48,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Orders.SagaOrchestrator", "src\Orders.SagaOrchestrator\Orders.SagaOrchestrator.csproj", "{2E90019D-B3C4-41DC-92C7-FB844B5DB9CE}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Platform.SharedContracts", "src\Platform.SharedContracts\Platform.SharedContracts.csproj", "{62B139FB-DA2B-43BF-A568-B2245A256B7A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EdaMicroEcommerce.AppHost", "src\EdaMicroEcommerce.AppHost\EdaMicroEcommerce.AppHost.csproj", "{62B7A73C-7357-4A86-8274-0AA089B7A655}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -123,6 +125,10 @@ Global
 		{62B139FB-DA2B-43BF-A568-B2245A256B7A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{62B139FB-DA2B-43BF-A568-B2245A256B7A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{62B139FB-DA2B-43BF-A568-B2245A256B7A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{62B7A73C-7357-4A86-8274-0AA089B7A655}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{62B7A73C-7357-4A86-8274-0AA089B7A655}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{62B7A73C-7357-4A86-8274-0AA089B7A655}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{62B7A73C-7357-4A86-8274-0AA089B7A655}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{C3BE1808-4DD1-4847-8FBF-3264AEA7F81C} = {B4F6860B-8B32-4C0C-9B3D-BB82C232823C}

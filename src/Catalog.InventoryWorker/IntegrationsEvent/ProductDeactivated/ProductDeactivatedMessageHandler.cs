@@ -1,3 +1,4 @@
+using System.Text;
 using Catalog.Domain.Entities;
 using Catalog.Domain.Entities.Products.Events;
 using KafkaFlow;
@@ -12,9 +13,16 @@ public class ProductDeactivatedMessageHandler(
 {
     public async Task Handle(IMessageContext context, ProductDeactivatedEvent message)
     {
+        // <WARNING....>
         // TODO: Preciso lidar com isso aqui tambem no SAGA....
-        logger.LogInformation("Iniciando processamento da mensagem offset {0}", context.ConsumerContext.Offset);
-        await productInventoryService.DeactivateProductOnInventoryAsync(message.ProductId);
-        logger.LogInformation("Processamento finalizado, mensagem commitada.");
+        try
+        {
+            await productInventoryService.DeactivateProductOnInventoryAsync(message.ProductId);
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Something bad happens during messaging consuming.");
+            throw;
+        }
     }
 }

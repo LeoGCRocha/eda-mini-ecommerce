@@ -87,13 +87,13 @@ namespace Catalog.Infra.Migrations.Data
 
                     b.Property<DateTime>("created_at_utc")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("timestamp without time zone")
+                        .HasColumnType("timestamp with time zone")
                         .HasColumnName("created_at_utc")
                         .HasDefaultValueSql("NOW()");
 
                     b.Property<DateTime>("updated_at_utc")
                         .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("timestamp without time zone")
+                        .HasColumnType("timestamp with time zone")
                         .HasColumnName("updated_at_utc")
                         .HasDefaultValueSql("NOW()");
 
@@ -120,7 +120,7 @@ namespace Catalog.Infra.Migrations.Data
 
                     b.Property<DateTime>("CreatedAtUtc")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("timestamp without time zone")
+                        .HasColumnType("timestamp with time zone")
                         .HasColumnName("created_at_utc")
                         .HasDefaultValueSql("NOW()");
 
@@ -136,7 +136,7 @@ namespace Catalog.Infra.Migrations.Data
                         .HasColumnName("payload");
 
                     b.Property<DateTime?>("ProcessedAtUtc")
-                        .HasColumnType("timestamp without time zone")
+                        .HasColumnType("timestamp with time zone")
                         .HasColumnName("processed_at_utc");
 
                     b.Property<int>("RetryCount")
@@ -144,6 +144,16 @@ namespace Catalog.Infra.Migrations.Data
                         .HasColumnType("integer")
                         .HasDefaultValue(0)
                         .HasColumnName("retry_count");
+
+                    b.Property<string>("SpanId")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("span_id");
+
+                    b.Property<string>("TraceId")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("trace_id");
 
                     b.Property<int>("Type")
                         .HasColumnType("integer")
@@ -179,7 +189,7 @@ namespace Catalog.Infra.Migrations.Data
 
                             b1.Property<DateTime>("OccuredAtUtc")
                                 .ValueGeneratedOnAdd()
-                                .HasColumnType("timestamp without time zone")
+                                .HasColumnType("timestamp with time zone")
                                 .HasColumnName("occured_at_utc")
                                 .HasDefaultValueSql("NOW()");
 

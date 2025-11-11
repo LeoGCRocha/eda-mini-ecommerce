@@ -5,6 +5,7 @@ using EdaMicroEcommerce.Domain.Enums;
 using Microsoft.Extensions.Logging;
 using Orders.Application.IntegrationEvents;
 using Orders.Application.IntegrationEvents.Products;
+using Orders.Application.Observability;
 using Orders.Application.Repositories;
 using Orders.Application.Saga.Entity;
 using Orders.Domain.Entities;
@@ -25,22 +26,30 @@ public class ProductReservedState(ILogger<ProductReservedState> logger, IOrderRe
     public async Task<SagaTransitionResult> HandleAsync(SagaContext context, ProductReservationStatusEvent @event,
         CancellationToken cts = default)
     {
+        // TODO: Esse evento em específico não ta registrando o tipo no OUTBOX causando um ruído no FLUXO....
+        using var activity =
+            Source.OrderSource.StartActivity(
+                $"{nameof(ProductReservedState)} : Responding to a product reservation on the order");
+
+        activity?.AddTag("saga.handler.type", nameof(ProductReservationEvent));
+        
         var entity = context.SagaEntity;
         Order order = context.Order;
 
         if (entity is null)
             // WARNING: Esse pode não ser o melhor caminho para lidar por que ficaria perna faltando
             throw new GenericException(
-                $"É preciso que a saga tenha sido definida antes que chegue um evento de reserva, {@event.OrderId}");
+                $"Saga should be defined before a reservation event, on OrderId({@event.OrderId})");
         
         // Evitando comportamento inadequado ou dupla tentativa de reserva de produto
-        
         var reservationStatus = order.OrderItems.First(or => or.ProductId == @event.ProductId).ReservationStatus;
 
+        activity?.AddTag("saga.reservation.status", reservationStatus.ToString());
+        
         if (reservationStatus is not ReservationStatus.Pending)
         {
             logger.LogWarning(
-                "Duplicidade em evento de reserva de produto ou estado invalido identificado, para  OrderId ({OrderId}).",
+                "Reservation event was thrown twice **OR** invalid state found in the SAGA, for the OrderId ({OrderId})",
                 @event.OrderId);
             return SagaTransitionResult.HasNoChange();
         }

@@ -1,22 +1,19 @@
-using System.Text.Json;
-using Catalog.Domain.Entities.Products.Events;
-using EdaMicroEcommerce.Application.Outbox;
 using MediatR;
+using System.Text.Json;
+using Catalog.Application.Observability;
+using EdaMicroEcommerce.Application.Outbox;
+using Catalog.Domain.Entities.Products.Events;
 
 namespace Catalog.Application.IntegrationEvents.Products.ProductDeactivated;
 
-public class ProductDeactivatedIntegrationHandler : IRequestHandler<ProductDeactivatedIntegration>
+public class ProductDeactivatedIntegrationHandler(IIntegrationEventPublisher eventPublisher)
+    : IRequestHandler<ProductDeactivatedIntegration>
 {
-    private readonly IIntegrationEventPublisher _eventPublisher;
-
-    public ProductDeactivatedIntegrationHandler(IIntegrationEventPublisher eventPublisher)
-    {
-        _eventPublisher = eventPublisher;
-    }
-
     public async Task Handle(ProductDeactivatedIntegration request, CancellationToken cancellationToken)
     {
+        using var activity = Source.CatalogSource.StartActivity($"{nameof(ProductDeactivatedIntegrationHandler)} : Sending message through broker.");
+        
         var @object = JsonSerializer.Deserialize<ProductDeactivatedEvent>(request.Payload);
-        await _eventPublisher.PublishOnTopicAsync(@object, MessageBrokerConst.ProductDeactivatedProducer, null);
+        await eventPublisher.PublishOnTopicAsync(@object, MessageBrokerConst.ProductDeactivatedProducer);
     }
 }

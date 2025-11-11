@@ -1,46 +1,51 @@
+using System.Diagnostics;
 using Orders.Application;
 using Orders.Domain.Entities;
 using Orders.Application.Saga;
 using Microsoft.Extensions.Logging;
 using Orders.Application.Saga.Entity;
 using Orders.Application.Repositories;
+using Orders.Application.Observability;
 using EdaMicroEcommerce.Domain.BuildingBlocks;
 using EdaMicroEcommerce.Domain.BuildingBlocks.StronglyTyped;
 
 namespace Orders.Infra;
 
-public class SagaOrchestrator : ISagaOrchestrator
+public class SagaOrchestrator(
+    OrderContext orderContext,
+    ILogger<SagaOrchestrator> logger,
+    IOrderRepository orderRepository,
+    ISagaRepository sagaRepository,
+    ISagaStateHandlerFactory stateHandlerFactory)
+    : ISagaOrchestrator
 {
-    private readonly OrderContext _orderContext;
-    private readonly ILogger<SagaOrchestrator> _logger;
-    private readonly IOrderRepository _orderRepository;
-    private readonly ISagaRepository _sagaRepository;
-    private readonly ISagaStateHandlerFactory _stateHandlerFactory;
-
-    public SagaOrchestrator(OrderContext orderContext, ILogger<SagaOrchestrator> logger,
-        IOrderRepository orderRepository, ISagaRepository sagaRepository, ISagaStateHandlerFactory stateHandlerFactory)
-    {
-        _orderContext = orderContext;
-        _logger = logger;
-        _orderRepository = orderRepository;
-        _sagaRepository = sagaRepository;
-        _stateHandlerFactory = stateHandlerFactory;
-    }
-
     public async Task ExecuteAsync<T>(OrderId orderId, T @event, CancellationToken cts = default)
     {
         // 1. Buscar o contexto atual do SAGA
-        var context = await BuildContextAsync(orderId, cts);
-        var handler = _stateHandlerFactory.GetHandler<T>();
+        using var activity = Source.OrderSource.StartActivity($"{nameof(SagaOrchestrator)} : Executing Orchestration", ActivityKind.Server);
 
+        activity?.AddTag("order.id", orderId.Value.ToString());
+        activity?.AddTag("saga.event.type", typeof(T).Name);
+        
+        var context = await BuildContextAsync(orderId, cts);
+        var handler = stateHandlerFactory.GetHandler<T>();
+
+        activity?.AddTag("saga.start_status", context.SagaEntity?.Status.ToString());
+        
         // 2. Validação se o handler e o status fazem sentido estarem juntos
+        activity?.AddEvent(new ActivityEvent("Handler Compatibility Check"));
+        
         if (!handler.CanHandle(context.SagaEntity?.Status))
         {
-            _logger.LogWarning(
-                "Handler {HandlerType} não pode lidar com o evento no status {Status} para o pedido {OrderId}",
+            logger.LogWarning(
+                "Handler {HandlerType} cannot handle with the current event on status {Status} to OrderId({OrderId})",
                 handler.GetType().Name,
                 context.SagaEntity?.Status,
                 orderId);
+
+            activity?.AddTag("saga.result", "SKIPPED_STATUS_MISMATCH");
+            activity?.AddEvent(new ActivityEvent("Handler Skipped due to Status mismatch"));
+            
             return;
         }
 
@@ -54,6 +59,8 @@ public class SagaOrchestrator : ISagaOrchestrator
 
         // 5. Se tiver mudanças deve realizar a transição de estados
         await ApplyAndTransitToNextState(context, result);
+
+        activity?.AddTag("saga.end_status", context.SagaEntity?.Status.ToString());
     }
 
     private async Task ApplyAndTransitToNextState(SagaContext sagaContext, SagaTransitionResult sagaTransitionResult)
@@ -63,7 +70,7 @@ public class SagaOrchestrator : ISagaOrchestrator
             if (sagaTransitionResult.ReferenceEntity is not null)
             {
                 sagaContext.SagaEntity = sagaTransitionResult.ReferenceEntity;
-                await _sagaRepository.AddAsync(sagaContext.SagaEntity);
+                await sagaRepository.AddAsync(sagaContext.SagaEntity);
             }
             
             if (sagaTransitionResult.NewOrderStatus is not null)
@@ -73,23 +80,26 @@ public class SagaOrchestrator : ISagaOrchestrator
                 if (sagaContext.SagaEntity != null)
                     sagaContext.SagaEntity.Status = (SagaStatus)sagaTransitionResult.NewStatus;
 
+            foreach (var sagaEvent in sagaTransitionResult.EventsToPublish)
+                sagaEvent.SetTraceAndSpanFromCurrentContext();
+            
             if (sagaTransitionResult.EventsToPublish.Count > 0)
-                await _orderContext.OutboxIntegrationEvents.AddRangeAsync(sagaTransitionResult.EventsToPublish);
+                await orderContext.OutboxIntegrationEvents.AddRangeAsync(sagaTransitionResult.EventsToPublish);
 
-            await _orderContext.SaveChangesAsync();
+            await orderContext.SaveChangesAsync();
         }
         catch (Exception ex)
         {
-            throw new GenericException($"Algo errado aconteceu durante a transição de estado, {ex.Message}");
+            throw new GenericException($"Something bad happens during state transition, {ex.Message}");
         }
     }
 
     private async Task<SagaContext> BuildContextAsync(OrderId orderId, CancellationToken cts = default)
     {
-        var orderObject = await _orderRepository.GetOrderByIdAsync(orderId, cts);
+        var orderObject = await orderRepository.GetOrderByIdAsync(orderId, cts);
         if (orderObject is null)
-            throw new GenericException($"Não foi possível encontrar a Order: {orderId.Value}, saga invalido.");
-        var sagaEntity = await _sagaRepository.GetByOrderIdAsync(orderId, cts);
+            throw new GenericException($"OrderId: {orderId.Value}, not found, invalid SAGA.");
+        var sagaEntity = await sagaRepository.GetByOrderIdAsync(orderId, cts);
 
         return new SagaContext(orderObject, sagaEntity);
     }
