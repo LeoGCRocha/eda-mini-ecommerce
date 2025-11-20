@@ -16,6 +16,6 @@ public class CustomerId : ValueObject
     
     protected override IEnumerable<object> GetAtomicValues()
     {
-        throw new NotImplementedException();
+        yield return Value;
     }
 }

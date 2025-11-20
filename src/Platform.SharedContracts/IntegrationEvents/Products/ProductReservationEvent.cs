@@ -1,5 +1,5 @@
-using EdaMicroEcommerce.Domain.BuildingBlocks.StronglyTyped;
 using EdaMicroEcommerce.Domain.Enums;
+using EdaMicroEcommerce.Domain.BuildingBlocks.StronglyTyped;
 
 namespace Platform.SharedContracts.IntegrationEvents.Products;
 

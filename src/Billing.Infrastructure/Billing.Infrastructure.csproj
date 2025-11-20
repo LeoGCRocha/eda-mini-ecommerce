@@ -1,0 +1,27 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net8.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\Billing.Application\Billing.Application.csproj" />
+      <ProjectReference Include="..\Billing.Domain\Billing.Domain.csproj" />
+      <ProjectReference Include="..\Platform.Application\Platform.Application.csproj" />
+        <ProjectReference Include="..\Platform.Infra\Platform.Infra.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="EFCore.NamingConventions" />
+        <PackageReference Include="KafkaFlow" />
+        <PackageReference Include="KafkaFlow.Microsoft.DependencyInjection" />
+        <PackageReference Include="KafkaFlow.SchemaRegistry" />
+        <PackageReference Include="KafkaFlow.Serializer.JsonCore" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore" />
+        <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" />
+        <PackageReference Include="KafkaFlow.LogHandler.Console" />
+    </ItemGroup>
+
+</Project>

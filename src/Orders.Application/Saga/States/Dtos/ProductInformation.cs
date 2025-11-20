@@ -1,6 +1,6 @@
 using EdaMicroEcommerce.Domain.BuildingBlocks.StronglyTyped;
 
-namespace Orders.Application.Saga.States;
+namespace Orders.Application.Saga.States.Dtos;
 
 public class ProductInformation
 {

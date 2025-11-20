@@ -1,4 +1,4 @@
-namespace Orders.Application.Saga.States;
+namespace Orders.Application.Saga.States.Dtos;
 
 public class StateData
 {
