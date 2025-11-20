@@ -11,8 +11,8 @@ public class Payment
     public decimal FeeAmount { get; private set; }
     public decimal DiscountAmount { get; private set; }
     public string? DiscountReason { get; private set; }
-    public required OrderId OrderId { get; init; }
-    public required CustomerId CustomerId { get; init; }
+    public OrderId OrderId { get; set; }
+    public CustomerId CustomerId { get; set; }
 
     private Payment()
     {

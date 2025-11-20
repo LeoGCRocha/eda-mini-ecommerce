@@ -1,8 +1,8 @@
 using Orders.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
+using EdaMicroEcommerce.Domain.Enums;
 using Orders.Application.Repositories;
 using EdaMicroEcommerce.Domain.BuildingBlocks.StronglyTyped;
-using EdaMicroEcommerce.Domain.Enums;
 
 namespace Orders.Infra.Repository;
 

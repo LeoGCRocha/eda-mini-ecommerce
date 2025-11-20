@@ -1,5 +1,4 @@
-﻿using System.Diagnostics;
-using KafkaFlow;
+﻿using KafkaFlow;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Configuration;
@@ -22,8 +21,6 @@ var host = Host.CreateDefaultBuilder(args)
         services.AddDatabase(configuration);
         services.AddProductInventoryServices();
         services.AddTelemetry(configuration);
-        
-        AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
         
         services.Configure<MessageBrokerConfiguration>(configuration.GetSection("MessageBroker"));
 

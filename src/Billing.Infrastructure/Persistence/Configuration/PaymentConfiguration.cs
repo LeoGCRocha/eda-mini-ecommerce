@@ -52,9 +52,10 @@ public class PaymentConfiguration : IEntityTypeConfiguration<Payment>
         builder.Property<DateTime>("updated_at_utc")
             .HasDefaultValueSql("NOW()")
             .ValueGeneratedOnAddOrUpdate();
-        
-        builder.Property<byte[]>("row_version")
-            .IsRowVersion()
-            .IsRequired();
+
+        builder.HasIndex(p => p.OrderId);
+
+        builder.Property<uint>("xmin")
+            .IsRowVersion();
     }
 }

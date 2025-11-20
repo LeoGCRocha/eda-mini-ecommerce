@@ -1,4 +1,3 @@
-using Confluent.Kafka;
 using EdaMicroEcommerce.Infra.Configuration;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
