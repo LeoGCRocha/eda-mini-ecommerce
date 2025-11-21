@@ -20,4 +20,8 @@
       <ProjectReference Include="..\Platform.Infra\Platform.Infra.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <PackageReference Include="Carter" />
+    </ItemGroup>
+
 </Project>

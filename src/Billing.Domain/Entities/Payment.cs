@@ -18,17 +18,28 @@ public class Payment
     {
     }
 
-    public Payment(decimal netAmount, decimal grossAmount, decimal feeAmount,
-        decimal discountAmount, OrderId orderId, CustomerId customerId, string? discountReason = null)
+    public Payment(decimal grossAmount, OrderId orderId, CustomerId customerId)
     {
         Id = new PaymentId();
         Status = PaymentStatus.Created;
-        NetAmount = netAmount;
+        NetAmount = grossAmount;
         GrossAmount = grossAmount;
-        FeeAmount = feeAmount;
-        DiscountAmount = discountAmount;
-        DiscountReason = discountReason;
+        FeeAmount = 0;
+        DiscountAmount = 0;
+        DiscountReason = null;
         OrderId = orderId;
         CustomerId = customerId;
+    }
+
+    public void ApplyDiscount(decimal discountValue, string discountReason)
+    {
+        NetAmount = GrossAmount - discountValue;
+        DiscountReason = discountReason;
+        DiscountAmount = discountValue;
+    }
+
+    public void ApplyFee(decimal feeTax)
+    {
+        NetAmount -= Math.Abs(feeTax);
     }
 }

@@ -70,7 +70,6 @@ var host = Host.CreateDefaultBuilder(args)
                         consumer.WithAutoOffsetReset(AutoOffsetReset
                             .Earliest); // Recebe mensagens do início do log de offset disponivel
 
-                        // TODO: Adicionar um consumo em BATCH EM ALGUM LUGAR QUE FAÇA SENTIDO PRA ESTRESSAR A LIB
                         consumer.AddMiddlewares(middlewares =>
                         {
                             middlewares.AddDeserializer<JsonCoreDeserializer>();

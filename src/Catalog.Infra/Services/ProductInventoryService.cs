@@ -41,7 +41,7 @@ public class ProductInventoryService(
         var product = await productRepository.GetProductAsync(productId);
         if (product is null)
             // TODO: Deveria ser um NOT FOUND EXCEPTION
-            throw new GenericException("Produto inexistente.");
+            throw new GenericException("Product not found.");
         product.DeactivateProduct();
         
         await context.SaveChangesAsync();

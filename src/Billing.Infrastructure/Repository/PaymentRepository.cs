@@ -19,6 +19,11 @@ public class PaymentRepository : IPaymentRepository
         return await BillingContext.Payments.FirstOrDefaultAsync(payment => payment.OrderId == orderId, cts);
     }
 
+    public async Task<Payment?> GetPaymentFromId(PaymentId paymentId, CancellationToken cts = default)
+    {
+        return await BillingContext.Payments.FirstOrDefaultAsync(payment => payment.Id == paymentId, cts);
+    }
+
     public async Task AddPaymentAsync(Payment payment, CancellationToken cts = default)
     {
         await BillingContext.AddRangeAsync(payment);

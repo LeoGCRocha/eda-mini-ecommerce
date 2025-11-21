@@ -22,15 +22,10 @@ public class CatalogOutboxWorker(IServiceProvider serviceProvider, ILogger<Catal
         {
             try
             {
-                // <WARNING> Temos um possível problema aqui no OUTBOX que é se for modificado o nome da classe o outbox ficaria perdido
-                // para encontrar a respectiva implementação
-
-                // TODO: Adicionar SCHEMA REGISTRY
                 using var scope = serviceProvider.CreateScope();
                 var dbContext = scope.ServiceProvider.GetRequiredService<CatalogContext>();
                 var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
 
-                // <WARNING> Talvez isso aqui não deveria estar externalizado via EF e sim acesso via query diretamente.
                 var integrationEvents = await dbContext.OutboxIntegrationEvents
                     .Where(p => p.ProcessedAtUtc == null && !p.IsDeadLetter)
                     .OrderBy(p => p.CreatedAtUtc).Take(MaxBatchSize)
@@ -80,8 +75,6 @@ public class CatalogOutboxWorker(IServiceProvider serviceProvider, ILogger<Catal
                     }
                     catch (Exception ex)
                     {
-                        // <WARNING> Aqui temos um problema na forma que o OUTBOX foi estruturado onde não existe um contexto
-                        // especifico do erro, ou seja, dificultando tratamentos mais especificos pra uma mensagem.
                         logger.LogError(ex, "Message cannot be published");
                         @event.UpdateRetryCount();
 

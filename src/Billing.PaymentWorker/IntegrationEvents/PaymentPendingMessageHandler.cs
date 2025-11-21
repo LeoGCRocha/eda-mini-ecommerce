@@ -28,8 +28,7 @@ public class PaymentPendingMessageHandler(
             if (payment is not null)
                 throw new Exception("Payment creation was attempted twice.");
 
-            await paymentRepository.AddPaymentAsync(new Payment(message.TotalAmount, message.TotalAmount, 0, 0,
-                message.OrderId, message.CustomerId));
+            await paymentRepository.AddPaymentAsync(new Payment(message.TotalAmount, message.OrderId, message.CustomerId));
 
             logger.LogInformation("Payment was successfully created.");
 

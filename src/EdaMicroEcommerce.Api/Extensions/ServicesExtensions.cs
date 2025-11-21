@@ -50,17 +50,13 @@ public static class ServicesExtensions
 
                             foreach (var (name, producerConfiguration) in producerConfigurations)
                             {
-                                 // <WARNING> pensar uma maneira de pegar mais configs pra definir mais robustez na produção
-                                 // Adicionar mais variaveis que vão possuir valor default.
-                                // TODO: Adicionar aqui configs
                                 cluster.AddProducer(name, producer =>
                                 {
                                     producer.DefaultTopic(producerConfiguration.Topic)
                                         // TODO: Deixar configurações menos genericas
                                         .WithProducerConfig(new ProducerConfig()
                                         {
-                                            EnableIdempotence = true, // So garante indepo. em caso de retry, não garante pra se o broker reiniciar
-                                                                      // e/ou se tiver falha no outbox
+                                            EnableIdempotence = true,
                                             Acks = Acks.Leader,
                                             LingerMs = 5,
                                             BatchNumMessages = 5000,
