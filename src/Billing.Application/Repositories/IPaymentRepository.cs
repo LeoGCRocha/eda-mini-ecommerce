@@ -8,4 +8,5 @@ public interface IPaymentRepository
     public Task<Payment?> GetPaymentFromOrderIdAsync(OrderId orderId, CancellationToken cts = default);
     public Task<Payment?> GetPaymentFromId(PaymentId paymentId, CancellationToken cts = default);
     public Task AddPaymentAsync(Payment payment, CancellationToken cts = default);
+    public Task SaveAsync(CancellationToken cts = default);
 }

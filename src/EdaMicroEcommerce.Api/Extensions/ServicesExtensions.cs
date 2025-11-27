@@ -1,4 +1,5 @@
 
+using Billing.Api;
 using KafkaFlow;
 using Orders.Api;
 using Catalog.Api;
@@ -22,6 +23,7 @@ public static class ServicesExtensions
         services
             .AddCatalog(appConfiguration)
             .AddOrders(appConfiguration)
+            .AddBilling(appConfiguration)
             .AddMessageBroker(messageBroker);
         
         return services;

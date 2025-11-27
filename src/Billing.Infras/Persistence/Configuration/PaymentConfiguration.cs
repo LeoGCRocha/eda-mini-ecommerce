@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using EdaMicroEcommerce.Domain.BuildingBlocks.StronglyTyped;
 
-namespace Billing.Infrastructure.Persistence.Configuration;
+namespace Billing.Infras.Persistence.Configuration;
 
 public class PaymentConfiguration : IEntityTypeConfiguration<Payment>
 {

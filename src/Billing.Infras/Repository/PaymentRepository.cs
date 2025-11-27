@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Billing.Application.Repositories;
 using EdaMicroEcommerce.Domain.BuildingBlocks.StronglyTyped;
 
-namespace Billing.Infrastructure.Repository;
+namespace Billing.Infras.Repository;
 
 public class PaymentRepository : IPaymentRepository
 {
@@ -27,6 +27,11 @@ public class PaymentRepository : IPaymentRepository
     public async Task AddPaymentAsync(Payment payment, CancellationToken cts = default)
     {
         await BillingContext.AddRangeAsync(payment);
+        await BillingContext.SaveChangesAsync(cts);
+    }
+
+    public async Task SaveAsync(CancellationToken cts = default)
+    {
         await BillingContext.SaveChangesAsync(cts);
     }
 }

@@ -2,7 +2,7 @@ using Billing.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace Billing.Infrastructure.Persistence.Configuration;
+namespace Billing.Infras.Persistence.Configuration;
 
 public class CouponConfiguration : IEntityTypeConfiguration<Coupon>
 {

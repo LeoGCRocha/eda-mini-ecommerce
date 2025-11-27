@@ -3,7 +3,7 @@ using Billing.Domain.Entities;
 using EdaMicroEcommerce.Application.Outbox;
 using Microsoft.EntityFrameworkCore;
 
-namespace Billing.Infrastructure;
+namespace Billing.Infras;
 
 public class BillingContext(DbContextOptions<BillingContext> options) : DbContext(options)
 {

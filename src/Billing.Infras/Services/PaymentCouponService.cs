@@ -6,7 +6,7 @@ using Billing.Domain.Entities;
 using EdaMicroEcommerce.Domain.BuildingBlocks.StronglyTyped;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Billing.Infrastructure.Services;
+namespace Billing.Infras.Services;
 
 public class PaymentCouponService : IPaymentCouponService
 {
@@ -43,6 +43,16 @@ public class PaymentCouponService : IPaymentCouponService
         IFeeStrategy feeStrategy = _serviceProvider.GetRequiredService<PaymentWithoutFeeStrategy>();
 
         feeStrategy.ApplyFee(payment);
+        
+        // DUMMY LOGIC TO SIMULATE A FAILED PROCESSING
+        int random = (int) Random.Shared.NextInt64(0, 10);
+        
+        if (random <= 5)
+            payment.Process(PaymentStatus.Approved);
+        else
+            payment.Process(PaymentStatus.Refused);
+
+        _paymentRepository.SaveAsync();
         
         return payment;
     }

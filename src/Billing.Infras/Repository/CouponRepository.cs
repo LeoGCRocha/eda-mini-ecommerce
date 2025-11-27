@@ -2,7 +2,7 @@ using Billing.Application.Repositories;
 using Billing.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 
-namespace Billing.Infrastructure.Repository;
+namespace Billing.Infras.Repository;
 
 public class CouponRepository : ICouponsRepository
 {

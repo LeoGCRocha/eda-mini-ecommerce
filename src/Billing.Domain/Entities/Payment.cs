@@ -1,10 +1,11 @@
+using Billing.Domain.Entities.Events;
+using EdaMicroEcommerce.Domain.BuildingBlocks;
 using EdaMicroEcommerce.Domain.BuildingBlocks.StronglyTyped;
 
 namespace Billing.Domain.Entities;
 
-public class Payment
+public class Payment : AggregateRoot<PaymentId>
 {
-    public PaymentId Id { get; private set; }
     public PaymentStatus Status { get; private set; }
     public decimal NetAmount { get; private set; }
     public decimal GrossAmount { get; private set; }
@@ -41,5 +42,14 @@ public class Payment
     public void ApplyFee(decimal feeTax)
     {
         NetAmount -= Math.Abs(feeTax);
+    }
+
+    public void Process(PaymentStatus status)
+    {
+        if (Status != PaymentStatus.Created)
+            throw new Exception("Payment already have a state.");
+
+        Status = status;
+        AddDomainEvent(new PaymentProcessedEvent(Id, OrderId, Status.ToString()));
     }
 }

@@ -1,0 +1,65 @@
+using System.Diagnostics;
+using Billing.Application.IntegrationEvents;
+using Billing.Application.IntegrationEvents.Payment;
+using Billing.Domain.Entities.Events;
+using EdaMicroEcommerce.Application.Outbox;
+using EdaMicroEcommerce.Domain.BuildingBlocks;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Diagnostics;
+
+namespace Billing.Infras;
+
+public class DomainEventsInterceptor : SaveChangesInterceptor
+{
+    // <WARNING> Toda essa estrutura modular do OUTBOX ficou mal implementada de uma forma 
+    // que a abstração e a generalização esta ruim, exigindo uma repetição de codigo
+    private readonly Dictionary<Type, Func<IDomainEvent, OutboxIntegrationEvent<EventType>>> _factoryDictionary = new()
+    {
+        { typeof(PaymentProcessedEvent), e => PaymentIntegrationFactory.FromDomain((PaymentProcessedEvent) e) } 
+    };
+
+    public override InterceptionResult<int> SavingChanges(DbContextEventData eventData,
+        InterceptionResult<int> result)
+    {
+        return SavingChangesAsync(eventData, result).GetAwaiter().GetResult();
+    }
+
+    public override ValueTask<InterceptionResult<int>> SavingChangesAsync(DbContextEventData eventData,
+        InterceptionResult<int> result,
+        // TODO: Lidar melhor com cancellation tokens
+        CancellationToken cancellationToken = new CancellationToken())
+    {
+        var currentActivity = Activity.Current;
+        var context = eventData.Context;
+
+        if (context is null)
+            throw new ArgumentException("Expected to receive a context here.");
+
+        var outbox = context.Set<OutboxIntegrationEvent<EventType>>();
+        var entries = context!.ChangeTracker.Entries()
+            .Where(evt => evt.State is EntityState.Added or EntityState.Modified or EntityState.Unchanged)
+            .Select(e => e.Entity);
+
+        var entriesAggregate = entries.OfType<IAggregateRoot>().ToList();
+        var domainEvents = entriesAggregate.SelectMany(e => e.GetDomainEvents());
+
+        foreach (var domainEvt in domainEvents)
+        {
+            if (_factoryDictionary.TryGetValue(domainEvt.GetType(), out var factoryFunc))
+            {
+                var outboxObject = factoryFunc(domainEvt);
+
+                if (currentActivity is not null) {
+                    outboxObject.TraceId = currentActivity.TraceId.ToHexString();
+                    outboxObject.SpanId = currentActivity.SpanId.ToHexString();
+                }
+                
+                outbox.Add(outboxObject);
+            }
+        }
+        foreach (var entry in entriesAggregate)
+            entry.ClearDomainEvents();
+
+        return base.SavingChangesAsync(eventData, result, cancellationToken);
+    }
+}

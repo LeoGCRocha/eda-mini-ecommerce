@@ -2,7 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.EntityFrameworkCore.Design;
 
-namespace Billing.Infrastructure;
+namespace Billing.Infras;
 
 public class CatalogContextFactory : IDesignTimeDbContextFactory<BillingContext>
 {
