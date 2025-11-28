@@ -1,7 +1,7 @@
 using EdaMicroEcommerce.Domain.BuildingBlocks;
 using EdaMicroEcommerce.Domain.BuildingBlocks.StronglyTyped;
 
-namespace Billing.Domain.Entities.Events;
+namespace Platform.SharedContracts.IntegrationEvents.Payments;
 
 public class PaymentProcessedEvent : IDomainEvent
 {

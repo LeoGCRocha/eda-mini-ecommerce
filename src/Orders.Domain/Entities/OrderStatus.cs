@@ -8,5 +8,6 @@ public enum OrderStatus
     FailedReservation,
     PendingPayment,
     Paid,
-    Canceled
+    Canceled,
+    PaymentRefused
 }

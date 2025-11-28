@@ -1,8 +1,8 @@
 using MediatR;
 using System.Text.Json;
-using Billing.Domain.Entities.Events;
 using Billing.Application.Observability;
 using EdaMicroEcommerce.Application.Outbox;
+using Platform.SharedContracts.IntegrationEvents.Payments;
 
 namespace Billing.Application.IntegrationEvents.Payment;
 

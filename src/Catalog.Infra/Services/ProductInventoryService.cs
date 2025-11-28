@@ -110,6 +110,18 @@ public class ProductInventoryService(
         await context.SaveChangesAsync();
     }
 
+    public async Task ConfirmProductReservation(OrderId orderId, ProductId productId, int quantity)
+    {
+        var inventoryItem = await inventoryItemRepository.GetInventoryItemByProductId(productId);
+
+        if (inventoryItem is null)
+            throw new GenericException("Wasn't found any inventory item associated with this product.");
+
+        inventoryItem.ConfirmReservation(orderId, quantity);
+
+        await context.SaveChangesAsync();
+    }
+
     private class ProductWithAvailableAndPrice
     {
         public Guid ProductId { get; set; }

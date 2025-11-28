@@ -8,6 +8,11 @@
 
     <ItemGroup>
       <ProjectReference Include="..\Platform.Domain\Platform.Domain.csproj" />
+      <ProjectReference Include="..\Platform.SharedContracts\Platform.SharedContracts.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="Entities\Events\" />
     </ItemGroup>
 
 </Project>

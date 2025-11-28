@@ -1,6 +1,6 @@
-using Billing.Domain.Entities.Events;
 using EdaMicroEcommerce.Domain.BuildingBlocks;
 using EdaMicroEcommerce.Domain.BuildingBlocks.StronglyTyped;
+using Platform.SharedContracts.IntegrationEvents.Payments;
 
 namespace Billing.Domain.Entities;
 

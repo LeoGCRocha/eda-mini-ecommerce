@@ -1,5 +1,5 @@
 using System.Text.Json;
-using Billing.Domain.Entities.Events;
+using Platform.SharedContracts.IntegrationEvents.Payments;
 
 namespace Billing.Application.IntegrationEvents.Payment;
 

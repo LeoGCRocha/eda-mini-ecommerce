@@ -67,6 +67,18 @@ public sealed class InventoryItem : AggregateRoot<InventoryItemId>
         AvailableQuantity += quantity;
     }
 
+    public void ConfirmReservation(OrderId orderId, int quantity)
+    {
+        if (_reservations.FirstOrDefault(or => or.OrderId == orderId && or.Status == ReservationStatus.Confirmed) is not
+            null)
+            throw new GenericException("The Idempotency error confirmation event was found twice.");
+        
+        _reservations.Add(new Reservation(orderId, ReservationStatus.Confirmed, quantity));
+
+        ReservedQuantity -= quantity;
+        AvailableQuantity += quantity;
+    }
+
     public void MakeUnavailable()
     {
         // <WARNING> Em uma estrutura mais robusta real seria necessário pensar uma forma de como lidar com os produtos

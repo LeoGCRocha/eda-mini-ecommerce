@@ -1,11 +1,11 @@
 using System.Diagnostics;
 using Billing.Application.IntegrationEvents;
 using Billing.Application.IntegrationEvents.Payment;
-using Billing.Domain.Entities.Events;
 using EdaMicroEcommerce.Application.Outbox;
 using EdaMicroEcommerce.Domain.BuildingBlocks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Platform.SharedContracts.IntegrationEvents.Payments;
 
 namespace Billing.Infras;
 

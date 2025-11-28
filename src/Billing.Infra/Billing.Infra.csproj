@@ -12,6 +12,7 @@
       <ProjectReference Include="..\Billing.Domain\Billing.Domain.csproj" />
       <ProjectReference Include="..\Platform.Application\Platform.Application.csproj" />
         <ProjectReference Include="..\Platform.Infra\Platform.Infra.csproj" />
+        <ProjectReference Include="..\Platform.SharedContracts\Platform.SharedContracts.csproj" />
     </ItemGroup>
 
     <ItemGroup>
