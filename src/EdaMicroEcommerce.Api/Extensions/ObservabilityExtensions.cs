@@ -9,7 +9,6 @@ public static class ObservabilityExtensions
 {
     public static IServiceCollection AddTelemetry(this IServiceCollection services, IConfiguration configuration)
     {
-        // A prática utilizada em arquitetura de eventos para controlar o comportamento em todos os serviços se chama
         var serviceName = configuration.GetValue<string>("OTEL_SERVICE_NAME");
         if (serviceName is null)
             throw new ArgumentNullException(nameof(serviceName));
@@ -29,7 +28,8 @@ public static class ObservabilityExtensions
                     .AddHttpClientInstrumentation()
                     .AddNpgsql()
                     .AddSource("CatalogSource")
-                    .AddSource("OrdersSource");
+                    .AddSource("OrdersSource")
+                    .AddSource("BillingSource");
 
                 tracing.AddOtlpExporter(options =>
                 {

@@ -36,6 +36,7 @@ public static class ServicesExtensions
         
         CatalogServicesExtensions.RegisterProducers(producerConfigurations, messageBrokerConfiguration);
         OrderServicesExtensions.RegisterProducers(producerConfigurations, messageBrokerConfiguration);
+        BillingServiceExtensions.RegisterProducers(producerConfigurations, messageBrokerConfiguration);
         
         services
             .AddKafka(kafka => 

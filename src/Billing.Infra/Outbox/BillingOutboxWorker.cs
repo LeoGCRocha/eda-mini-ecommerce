@@ -1,0 +1,90 @@
+using System.Diagnostics;
+using Billing.Application.IntegrationEvents;
+using Billing.Application.IntegrationEvents.Payment;
+using Billing.Application.Observability;
+using MediatR;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
+
+namespace Billing.Infras.Outbox;
+
+public class BillingOutboxWorker(IServiceProvider serviceProvider, ILogger<BillingOutboxWorker> logger)
+    : BackgroundService
+{
+    private const int MaxBatchSize = 1000;
+
+    protected override async Task ExecuteAsync(CancellationToken stoppingToken)
+    {
+        logger.LogInformation($"{nameof(BillingOutboxWorker)} started execution.");
+        while (!stoppingToken.IsCancellationRequested)
+        {
+            try
+            {
+                using var scope = serviceProvider.CreateScope();
+                var dbContext = scope.ServiceProvider.GetRequiredService<BillingContext>();
+                var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
+
+                var integrationEvents = await dbContext.OutboxIntegrationEvents
+                    .Where(p => p.ProcessedAtUtc == null && !p.IsDeadLetter)
+                    .OrderBy(p => p.CreatedAtUtc).Take(MaxBatchSize)
+                    .ToListAsync(cancellationToken: stoppingToken);
+
+                int parallelism = Environment.ProcessorCount * 2; // io bound operation
+                await Parallel.ForEachAsync(integrationEvents, new ParallelOptions
+                {
+                    MaxDegreeOfParallelism = parallelism
+                }, async (@event, ct) =>
+                {
+                    // at least once guarantee
+                    try
+                    {
+                        ActivityContext parentContext = default;
+                        ActivitySource workerSource = Source.BillingSource;
+
+                        if (!string.IsNullOrEmpty(@event.TraceId) && !string.IsNullOrEmpty(@event.SpanId))
+                            parentContext = new ActivityContext(ActivityTraceId.CreateFromString(@event.TraceId),
+                                ActivitySpanId.CreateFromString(@event.SpanId),
+                                ActivityTraceFlags.Recorded);
+
+                        using var activity = workerSource.StartActivity(
+                            $"Process Event {@event.Type}",
+                            ActivityKind.Consumer,
+                            parentContext
+                        );
+
+                        activity?.SetTag("messaging.system", "kafka");
+
+                        switch (@event.Type)
+                        {
+                            case EventType.PaymentProcessed:
+                                await mediator.Send(
+                                    new PaymentProcessedIntegrationEvent(EventType.PaymentProcessed, @event.Payload), ct);
+                                break;
+                            default:
+                                throw new ArgumentException("Tipo inesperado para EventType");
+                        }
+
+                        @event.SetProcessedAtToNow();
+                    }
+                    catch (Exception ex)
+                    {
+                        logger.LogError(ex, "Message cannot be published");
+                        @event.UpdateRetryCount();
+
+                        if (@event.RetryCount > 5)
+                            @event.MarkAsDead();
+                    }
+                });
+
+                await dbContext.SaveChangesAsync(stoppingToken);
+                await Task.Delay(TimeSpan.FromSeconds(5), stoppingToken);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Failed to run outbox process.");
+            }
+        }
+    }
+}

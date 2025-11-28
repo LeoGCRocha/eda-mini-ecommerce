@@ -16,7 +16,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\Billing.Infras\Billing.Infras.csproj" />
+      <ProjectReference Include="..\Billing.Infra\Billing.Infra.csproj" />
       <ProjectReference Include="..\Platform.Infra\Platform.Infra.csproj" />
     </ItemGroup>
 

@@ -55,7 +55,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Billing.Contracts", "src\Bi
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Billing.Domain", "src\Billing.Domain\Billing.Domain.csproj", "{3E096A26-1BF0-49DE-9400-3D1A9425C128}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Billing.Infras", "src\Billing.Infras\Billing.Infras.csproj", "{026477B6-182E-4C21-A894-DD74369D360B}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Billing.Infra", "src\Billing.Infra\Billing.Infra.csproj", "{026477B6-182E-4C21-A894-DD74369D360B}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Billing.Application", "src\Billing.Application\Billing.Application.csproj", "{5A94D9EE-8944-45FE-A5EC-A9B630FC6A62}"
 EndProject
