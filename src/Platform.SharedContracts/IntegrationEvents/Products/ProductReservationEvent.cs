@@ -1,5 +1,5 @@
-using EdaMicroEcommerce.Domain.BuildingBlocks.StronglyTyped;
 using EdaMicroEcommerce.Domain.Enums;
+using EdaMicroEcommerce.Domain.BuildingBlocks.StronglyTyped;
 
 namespace Platform.SharedContracts.IntegrationEvents.Products;
 
@@ -9,8 +9,8 @@ public class ProductReservationEvent(
     int quantity,
     ReservationEventType reservationType)
 {
-    public OrderId OrderId { get; set; } = orderId;
-    public ProductId ProductId { get; set; } = productId;
-    public int Quantity { get; set; } = quantity;
-    public ReservationEventType ReservationType { get; set; } = reservationType;
+    public OrderId OrderId { get; init; } = orderId;
+    public ProductId ProductId { get; init; } = productId;
+    public int Quantity { get; init; } = quantity;
+    public ReservationEventType ReservationType { get; init; } = reservationType;
 }

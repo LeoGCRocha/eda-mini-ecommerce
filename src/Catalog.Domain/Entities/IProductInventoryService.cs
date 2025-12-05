@@ -12,4 +12,5 @@ public interface IProductInventoryService
     Task<List<ProductAvailabilityResponse>> HasAvailabilityForProduct(Dictionary<ProductId, int> productsWithQuantity);
     Task<bool> ReserveProductIfAvailable(ProductId productId, int quantity, OrderId orderId);
     Task CancelProductReservation(OrderId orderId, ProductId productId, int quantity);
+    Task ConfirmProductReservation(OrderId orderId, ProductId productId, int quantity);
 }

@@ -41,7 +41,7 @@ public class ProductInventoryService(
         var product = await productRepository.GetProductAsync(productId);
         if (product is null)
             // TODO: Deveria ser um NOT FOUND EXCEPTION
-            throw new GenericException("Produto inexistente.");
+            throw new GenericException("Product not found.");
         product.DeactivateProduct();
         
         await context.SaveChangesAsync();
@@ -106,6 +106,18 @@ public class ProductInventoryService(
             throw new GenericException("Não foi possível encontrar o item associado ao produto.");
 
         inventoryItem.CancelReservation(orderId, quantity);
+
+        await context.SaveChangesAsync();
+    }
+
+    public async Task ConfirmProductReservation(OrderId orderId, ProductId productId, int quantity)
+    {
+        var inventoryItem = await inventoryItemRepository.GetInventoryItemByProductId(productId);
+
+        if (inventoryItem is null)
+            throw new GenericException("Wasn't found any inventory item associated with this product.");
+
+        inventoryItem.ConfirmReservation(orderId, quantity);
 
         await context.SaveChangesAsync();
     }

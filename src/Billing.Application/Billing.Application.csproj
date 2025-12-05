@@ -1,0 +1,15 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net8.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\Billing.Domain\Billing.Domain.csproj" />
+      <ProjectReference Include="..\Platform.Application\Platform.Application.csproj" />
+      <ProjectReference Include="..\Platform.SharedContracts\Platform.SharedContracts.csproj" />
+    </ItemGroup>
+
+</Project>

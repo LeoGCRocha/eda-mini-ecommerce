@@ -32,14 +32,12 @@ public class DomainEventsInterceptor : SaveChangesInterceptor
         CancellationToken cancellationToken = new CancellationToken())
     {
         var currentActivity = Activity.Current;
-        
         var context = eventData.Context;
 
         if (context is null)
             throw new ArgumentException("Expected to receive a context here.");
 
         var outbox = context.Set<OutboxIntegrationEvent<EventType>>();
-
         var entries = context!.ChangeTracker.Entries()
             .Where(evt => evt.State is EntityState.Added or EntityState.Modified or EntityState.Unchanged)
             .Select(e => e.Entity);
@@ -61,7 +59,6 @@ public class DomainEventsInterceptor : SaveChangesInterceptor
                 outbox.Add(outboxObject);
             }
         }
-
         foreach (var entry in entriesAggregate)
             entry.ClearDomainEvents();
 

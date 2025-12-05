@@ -8,7 +8,6 @@ namespace EdaMicroEcommerce.Application;
 public class MessageContextPropagationMiddleware(ActivitySource activitySource) : IMessageMiddleware
 {
     private static readonly TextMapPropagator Propagator = Propagators.DefaultTextMapPropagator;
-
     public async Task Invoke(IMessageContext context, MiddlewareDelegate next)
     {
         var parentContext = Propagator.Extract(default, context.Headers, ContextPropagationHelper.ExtractHeader);

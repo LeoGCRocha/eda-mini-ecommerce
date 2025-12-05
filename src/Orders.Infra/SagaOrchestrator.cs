@@ -21,7 +21,7 @@ public class SagaOrchestrator(
 {
     public async Task ExecuteAsync<T>(OrderId orderId, T @event, CancellationToken cts = default)
     {
-        // 1. Buscar o contexto atual do SAGA
+        // 1. It gets the current saga context
         using var activity = Source.OrderSource.StartActivity($"{nameof(SagaOrchestrator)} : Executing Orchestration", ActivityKind.Server);
 
         activity?.AddTag("order.id", orderId.Value.ToString());
@@ -32,7 +32,7 @@ public class SagaOrchestrator(
 
         activity?.AddTag("saga.start_status", context.SagaEntity?.Status.ToString());
         
-        // 2. Validação se o handler e o status fazem sentido estarem juntos
+        // 2. It checks whether the handler and the current state are consistent with each other
         activity?.AddEvent(new ActivityEvent("Handler Compatibility Check"));
         
         if (!handler.CanHandle(context.SagaEntity?.Status))

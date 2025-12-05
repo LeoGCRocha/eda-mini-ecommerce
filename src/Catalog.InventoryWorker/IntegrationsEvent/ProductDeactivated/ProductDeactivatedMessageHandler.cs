@@ -1,4 +1,3 @@
-using System.Text;
 using Catalog.Domain.Entities;
 using Catalog.Domain.Entities.Products.Events;
 using KafkaFlow;

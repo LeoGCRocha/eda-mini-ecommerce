@@ -21,6 +21,7 @@ public class IntegrationEventPublisher(IProducerAccessor producerAccessor, ILogg
             using var activity = Activity.Current;
 
             var traceHeaders = new MessageHeaders();
+            
             if (activity is not null)
                 Propagator.Inject(new PropagationContext(activity.Context, Baggage.Current), traceHeaders,
                     (dict, k, v) => dict[k] = Encoding.UTF8.GetBytes(v));

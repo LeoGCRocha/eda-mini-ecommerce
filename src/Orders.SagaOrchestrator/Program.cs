@@ -17,6 +17,7 @@ using Orders.Infra.Repository;
 using Orders.Saga.Extensions;
 using Orders.Saga.IntegrationEvents;
 using Orders.Saga.MessageMiddlewares;
+using Platform.SharedContracts.IntegrationEvents.Payments;
 
 var host = Host.CreateDefaultBuilder(args)
     .ConfigureServices((hostContext, services) =>
@@ -29,6 +30,8 @@ var host = Host.CreateDefaultBuilder(args)
         services.AddSingleton<ISagaStateHandlerFactory, StateHandlerFactory>();
         services.AddScoped<ISagaStateHandler<OrderCreatedEvent>, OrderCreatedState>();
         services.AddScoped<ISagaStateHandler<ProductReservationStatusEvent>, ProductReservedState>();
+        services.AddScoped<ISagaStateHandler<PaymentProcessedEvent>, PaymentProcessedState>();
+        
         services.AddScoped<ISagaOrchestrator, SagaOrchestrator>();
         services.AddScoped<ISagaRepository, SagaRepository>();
         services.AddScoped<IOrderRepository, OrderRepository>();
@@ -52,6 +55,10 @@ var host = Host.CreateDefaultBuilder(args)
                 out var productReservedConsumer))
             throw new ArgumentException("É esperado as configuração de consumer para consume de reservas.");
 
+        if (!messageBroker.Consumers.TryGetValue(MessageBrokerConst.PaymentProcessedConsumer,
+                out var paymentProcessedConsumer))
+            throw new ArgumentException("It's expected a configuration to the consumer of PaymentProcessed.");
+
         services.AddKafkaFlowHostedService(kafka =>
         {
             kafka.UseMicrosoftLog();
@@ -61,16 +68,14 @@ var host = Host.CreateDefaultBuilder(args)
                     {
                         consumer.Topic(consumerConfiguration.Topic);
                         consumer.WithGroupId(consumerConfiguration
-                            .GroupId); // Consumer group usado para definir o recebimento de mensagem
-                        // TRAZER ISSO PARA AS CONFIGURAÇÕES
+                            .GroupId); 
                         consumer.WithWorkersCount(
-                            1); // Quantidade de threads paralelas que processam, obs, cada thread so obtem dados da mesma partição
+                            1); 
                         consumer.WithBufferSize(
-                            100); // Define o tamanho da fila interna (buffer) de mensagens que o KafkaFlow mantém
+                            100); 
                         consumer.WithAutoOffsetReset(AutoOffsetReset
-                            .Earliest); // Recebe mensagens do início do log de offset disponivel
+                            .Earliest); 
 
-                        // TODO: Adicionar um consumo em BATCH EM ALGUM LUGAR QUE FAÇA SENTIDO PRA ESTRESSAR A LIB
                         consumer.AddMiddlewares(middlewares =>
                         {
                             middlewares.AddDeserializer<JsonCoreDeserializer>();
@@ -93,20 +98,32 @@ var host = Host.CreateDefaultBuilder(args)
                     {
                         consumer.Topic(productReservedConsumer.Topic);
                         consumer.WithGroupId(productReservedConsumer
-                            .GroupId); // Consumer group usado para definir o recebimento de mensagem
-                        // TRAZER ISSO PARA AS CONFIGURAÇÕES
+                            .GroupId); 
                         consumer.WithWorkersCount(
-                            1); // Quantidade de threads paralelas que processam, obs, cada thread so obtem dados da mesma partição
+                            1); 
                         consumer.WithBufferSize(
-                            100); // Define o tamanho da fila interna (buffer) de mensagens que o KafkaFlow mantém
+                            100); 
                         consumer.WithAutoOffsetReset(AutoOffsetReset
-                            .Earliest); // Recebe mensagens do início do log de offset disponivel
+                            .Earliest); 
 
-                        // TODO: Adicionar um consumo em BATCH EM ALGUM LUGAR QUE FAÇA SENTIDO PRA ESTRESSAR A LIB
                         consumer.AddMiddlewares(middlewares =>
                         {
                             middlewares.Add<MessageContextPropagationMiddleware>();
                             middlewares.Add<ProductReservedMiddleware>();
+                        });
+                    })
+                    .AddConsumer(consumer =>
+                    {
+                        consumer.Topic(paymentProcessedConsumer.Topic);
+                        consumer.WithGroupId(paymentProcessedConsumer.GroupId);
+                        consumer.WithWorkersCount(1);
+                        consumer.WithBufferSize(100);
+                        consumer.WithAutoOffsetReset(AutoOffsetReset.Earliest);
+
+                        consumer.AddMiddlewares(middlewares =>
+                        {
+                            middlewares.Add<MessageContextPropagationMiddleware>();
+                            middlewares.Add<PaymentProcessedMiddleware>();
                         });
                     })
                 );

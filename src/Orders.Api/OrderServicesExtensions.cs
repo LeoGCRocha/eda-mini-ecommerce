@@ -69,11 +69,23 @@ public static class OrderServicesExtensions
                 out var productConfiguration))
             throw new ArgumentException("É esperado a configuração de producer para produtos.");
 
+        if (!messageBrokerConfiguration.Producers.TryGetValue(MessageBrokerConst.PaymentPendingProducer,
+                out var paymentProducer))
+            throw new ArgumentException(
+                $"It's expected a configuration to {MessageBrokerConst.PaymentPendingProducer}");
+
         producers.Add(MessageBrokerConst.OrderCreatedProducer, new ProducerConfiguration
         {
             Topic = producerConfiguration.Topic,
             ReplicaFactor = producerConfiguration.ReplicaFactor,
             Partitions = producerConfiguration.Partitions
+        });
+        
+        producers.Add(MessageBrokerConst.PaymentPendingProducer, new ProducerConfiguration()
+        {
+            Topic = paymentProducer.Topic,
+            ReplicaFactor = paymentProducer.ReplicaFactor,
+            Partitions = paymentProducer.Partitions
         });
         
         // TODO: SUBIU COM APENAS UMA PARTIÇÃO

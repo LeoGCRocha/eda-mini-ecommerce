@@ -46,8 +46,6 @@ public class CreateOrderCommandHandler : IRequestHandler<CreateOrderCommand>
             if (unavailableProducts.Count != 0) // TODO: Não deixar exceção generica.
                 throw new GenericException("Pelo menos um produto não possui quantidade suficiente.");
 
-            // TODO: Talvez um strategy ou uma mudança aqui pra quando for ter logica pra validação de CUPOM DE DESCONTO SE ENCAIXE.
-            // TODO: Implementar CUPOM DE DESCONTO
             var orderItems = request.OrderItemDtos
                 .Select(item => new OrderItem(new ProductId(item.ProductId), item.DesireQuantity,
                     productAvailability.First(inner => inner.ProductId == item.ProductId).UnitPrice)).ToList();
@@ -64,7 +62,6 @@ public class CreateOrderCommandHandler : IRequestHandler<CreateOrderCommand>
         }
         catch (GenericException ex)
         {
-            // TODO: Ver sobre o AddException AddEvent... e ver sobre como fica quando da erro
             _logger.LogWarning("Falha na validação do pedido: {Message}", ex.Message);
             activity?.SetStatus(ActivityStatusCode.Error);
             throw;

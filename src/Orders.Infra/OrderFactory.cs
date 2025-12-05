@@ -1,7 +1,8 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.Extensions.Configuration;
-using Orders.Infra;
+
+namespace Orders.Infra;
 
 public class OrderContextFactory : IDesignTimeDbContextFactory<OrderContext>
 {

@@ -12,6 +12,7 @@
     </PropertyGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\Billing.PaymentWorker\Billing.PaymentWorker.csproj" />
       <ProjectReference Include="..\Catalog.InventoryWorker\Catalog.InventoryWorker.csproj" />
       <ProjectReference Include="..\EdaMicroEcommerce.Api\EdaMicroEcommerce.Api.csproj" />
       <ProjectReference Include="..\Orders.SagaOrchestrator\Orders.SagaOrchestrator.csproj" />

@@ -6,4 +6,6 @@ public enum EventType
     OrderCreated = 1,
     // <PRODUCT RESERVATION>
     ProductReservation = 2,
+    // <PAYMENT PEDING>
+    PaymentPending = 3
 }

@@ -53,7 +53,10 @@ public class ProductInventoryReservationHandler(
 
         if (message.ReservationType == ReservationEventType.Confirmation)
         {
-            // TODO: Aqui ao finalizar o PAGAMENTO SE CONCLUIR DAI TIRA A QUANTIDADE RESERVADA E TIRA QUANTIDADE AVAILABLE POR QUE JÁ FOI CONCRETIZADO
+            logger.LogWarning("Confirming product reservation {Product}", message.ProductId.Value);
+
+            await productInventoryService.ConfirmProductReservation(message.OrderId, message.ProductId,
+                message.Quantity);
         }
     }
 }

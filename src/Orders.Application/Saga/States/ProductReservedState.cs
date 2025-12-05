@@ -4,12 +4,14 @@ using EdaMicroEcommerce.Domain.BuildingBlocks;
 using EdaMicroEcommerce.Domain.Enums;
 using Microsoft.Extensions.Logging;
 using Orders.Application.IntegrationEvents;
+using Orders.Application.IntegrationEvents.Payments;
 using Orders.Application.IntegrationEvents.Products;
 using Orders.Application.Observability;
 using Orders.Application.Repositories;
 using Orders.Application.Saga.Entity;
 using Orders.Domain.Entities;
 using Orders.Domain.Entities.Events;
+using Platform.SharedContracts.IntegrationEvents.Payments;
 using Platform.SharedContracts.IntegrationEvents.Products;
 
 namespace Orders.Application.Saga.States;
@@ -32,7 +34,7 @@ public class ProductReservedState(ILogger<ProductReservedState> logger, IOrderRe
                 $"{nameof(ProductReservedState)} : Responding to a product reservation on the order");
 
         activity?.AddTag("saga.handler.type", nameof(ProductReservationEvent));
-        
+
         var entity = context.SagaEntity;
         Order order = context.Order;
 
@@ -40,12 +42,12 @@ public class ProductReservedState(ILogger<ProductReservedState> logger, IOrderRe
             // WARNING: Esse pode não ser o melhor caminho para lidar por que ficaria perna faltando
             throw new GenericException(
                 $"Saga should be defined before a reservation event, on OrderId({@event.OrderId})");
-        
+
         // Evitando comportamento inadequado ou dupla tentativa de reserva de produto
         var reservationStatus = order.OrderItems.First(or => or.ProductId == @event.ProductId).ReservationStatus;
 
         activity?.AddTag("saga.reservation.status", reservationStatus.ToString());
-        
+
         if (reservationStatus is not ReservationStatus.Pending)
         {
             logger.LogWarning(
@@ -65,34 +67,41 @@ public class ProductReservedState(ILogger<ProductReservedState> logger, IOrderRe
                 // Cancelar a reserva desse pedido
                 new(EventType.ProductReservation,
                     JsonSerializer.Serialize(new ProductReservationEvent(@event.OrderId, @event.ProductId,
-                        @event.ReservedQuantity,  ReservationEventType.Cancellation)))
-            
+                        @event.ReservedQuantity, ReservationEventType.Cancellation)))
             ];
-            
+
             orderRepository.UpdateOrderItemStatus(context.Order, @event.ProductId);
-            
+
             return new SagaTransitionResult()
             {
                 EventsToPublish = reservationFailedIntegrations.Cast<OutboxIntegrationEvent<EventType>>().ToList(),
                 IsChange = true
             };
         }
-        
+
         // Caminho normal esperado
         // Realizar reserva recebida do produto no pedido em específico.
         if (@event.ReservationEventType is not ReservationEventType.Reservation)
             throw new GenericException($"Tipo de evento inesperado para o pedido ({@event.OrderId}) neste momento.");
-        
+
         // Atualiza o estado do produto atual no pedido
         order.UpdateOrderItensStatus([@event.ProductId], ReservationStatus.Reserved);
 
         if (order.OrderItems.Where(or => or.ReservationStatus == ReservationStatus.Reserved).ToList().Count ==
             order.OrderItems.Count)
         {
-            // Se todos os itens já foram reservados o pedido pode prosseguir para proximal etapa que seria aguardar o pagamento
+            // If all itens were already reserve we should proceed to next valid state
+            List<PaymentPendingIntegration> paymentPendingIntegrations =
+            [
+                new PaymentPendingIntegration(EventType.PaymentPending, JsonSerializer.Serialize(
+                    new PaymentPendingEvent(context.Order.Id, context.Order.TotalAmount, context.Order.CustomerId)
+                ))
+            ];
+
             return new SagaTransitionResult()
             {
                 NewStatus = SagaStatus.PendingPayment,
+                EventsToPublish = paymentPendingIntegrations.Cast<OutboxIntegrationEvent<EventType>>().ToList(),
                 NewOrderStatus = OrderStatus.PendingPayment,
                 IsChange = true
             };
@@ -127,8 +136,8 @@ public class ProductReservedState(ILogger<ProductReservedState> logger, IOrderRe
 
         var reservationToCancelTuple =
             orderRepository.CancelAllReservationFromAFailure(context.Order, @event.ProductId);
-        
-        reservationToCancel.AddRange(reservationToCancelTuple.Select(tuple => 
+
+        reservationToCancel.AddRange(reservationToCancelTuple.Select(tuple =>
             new ProductReservationIntegration(EventType.ProductReservation,
                 JsonSerializer.Serialize(new ProductReservationEvent(@event.OrderId, tuple.Item1,
                     tuple.Item2, ReservationEventType.Cancellation)))));
@@ -137,7 +146,9 @@ public class ProductReservedState(ILogger<ProductReservedState> logger, IOrderRe
         {
             NewStatus = SagaStatus.FailedReservation,
             NewOrderStatus = OrderStatus.FailedReservation,
-            EventsToPublish = reservationToCancel.Cast<OutboxIntegrationEvent<EventType>>().ToList(), // Envia pro outbox e depois ele envia para o topic interessado
+            EventsToPublish =
+                reservationToCancel.Cast<OutboxIntegrationEvent<EventType>>()
+                    .ToList(), // Envia pro outbox e depois ele envia para o topic interessado
             IsChange = true
         });
     }

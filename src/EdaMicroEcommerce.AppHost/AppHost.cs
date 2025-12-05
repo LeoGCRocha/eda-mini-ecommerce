@@ -16,6 +16,10 @@ builder.AddProject<Projects.EdaMicroEcommerce_Api>("edamicroecommerce-api")
     .WithReference(database)
     .WithReference(kafka);
 
+builder.AddProject<Projects.Billing_PaymentWorker>("edamicroecommerce-billing-payment-worker")
+    .WithReference(database)
+    .WithReference(kafka);
+
 builder.AddProject<Projects.Catalog_InventoryWorker>("edamicroecommerce-catalog-worker")
     .WithReference(database)
     .WithReference(kafka);

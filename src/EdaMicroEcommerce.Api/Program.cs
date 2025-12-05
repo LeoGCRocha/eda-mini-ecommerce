@@ -1,3 +1,4 @@
+using Billing.Infras.Outbox;
 using Carter;
 using Catalog.Infra.Outbox;
 using EdaMicroEcommerce.Infra.Configuration;
@@ -34,6 +35,7 @@ if (messageBroker is null)
 services
     .AddModulesServices(appConfiguration);
 
+services.AddHostedService<BillingOutboxWorker>();
 services.AddHostedService<CatalogOutboxWorker>();
 services.AddHostedService<OrderOutboxWorker>();
 services.AddTelemetry(appConfiguration);

@@ -6,6 +6,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Orders.Application.IntegrationEvents;
 using Orders.Application.IntegrationEvents.Orders;
+using Orders.Application.IntegrationEvents.Payments;
 using Orders.Application.IntegrationEvents.Products;
 using Orders.Application.Observability;
 
@@ -48,7 +49,7 @@ public class OrderOutboxWorker(IServiceProvider serviceProvider, ILogger<OrderOu
                     {
                         ActivityContext parentContext = default;
                         ActivitySource workerSource = Source.OrderSource;
-                        
+
                         if (!string.IsNullOrEmpty(@event.TraceId) && !string.IsNullOrEmpty(@event.SpanId))
                             parentContext = new ActivityContext(ActivityTraceId.CreateFromString(@event.TraceId),
                                 ActivitySpanId.CreateFromString(@event.SpanId),
@@ -61,7 +62,7 @@ public class OrderOutboxWorker(IServiceProvider serviceProvider, ILogger<OrderOu
                         );
 
                         activity?.SetTag("messaging.system", "kafka");
-                        
+
                         switch (@event.Type)
                         {
                             case EventType.OrderCreated:
@@ -73,8 +74,12 @@ public class OrderOutboxWorker(IServiceProvider serviceProvider, ILogger<OrderOu
                                     new ProductReservationIntegration(EventType.ProductReservation, @event.Payload),
                                     ct);
                                 break;
+                            case EventType.PaymentPending:
+                                await mediator.Send(
+                                    new PaymentPendingIntegration(EventType.PaymentPending, @event.Payload), ct);
+                                break;
                             default:
-                                throw new ArgumentException("Tipo inesperado para EventType");
+                                throw new ArgumentException("Unexpected EventType was found");
                         }
 
                         @event.SetProcessedAtToNow();
