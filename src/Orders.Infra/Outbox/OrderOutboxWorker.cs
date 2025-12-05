@@ -27,7 +27,6 @@ public class OrderOutboxWorker(IServiceProvider serviceProvider, ILogger<OrderOu
                 // <WARNING> Temos um possível problema aqui no OUTBOX que é se for modificado o nome da classe o outbox ficaria perdido
                 // para encontrar a respectiva implementação
 
-                // TODO: Adicionar SCHEMA REGISTRY
                 using var scope = serviceProvider.CreateScope();
                 var dbContext = scope.ServiceProvider.GetRequiredService<OrderContext>();
                 var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();

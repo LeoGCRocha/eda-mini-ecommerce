@@ -13,14 +13,14 @@ public class ProductDeactivatedMessageHandler(
     public async Task Handle(IMessageContext context, ProductDeactivatedEvent message)
     {
         // <WARNING....>
-        // TODO: Preciso lidar com isso aqui tambem no SAGA....
+        // The SagaOrchestrator could handle this.
         try
         {
             await productInventoryService.DeactivateProductOnInventoryAsync(message.ProductId);
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "Something bad happens during messaging consuming.");
+            logger.LogError(ex, "Something bad happens during messaging consumption.");
             throw;
         }
     }

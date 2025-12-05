@@ -23,7 +23,7 @@ services.AddCarter();
 
 var appConfiguration = builder.Configuration;
 
-// TODO: Add schema registry
+// <WARNING> A schema registry can be valuable component for both message publishing and consumption.
 services.AddScoped<IIntegrationEventPublisher, IntegrationEventPublisher>();
 
 // <TIP> kafka-topics --delete --topic product-deactivated --bootstrap-server localhost:9092
@@ -56,7 +56,7 @@ app.UseExceptionHandler(exceptHandler =>
             {
                 Type = ex.GetType().Name,
                 Status = StatusCodes.Status500InternalServerError,
-                Title = "Ocorreu um erro inesperado",
+                Title = "Something bad happens.",
                 Detail = ex.Message,
                 Instance = exceptionHandlerPathFeature.Path
             };

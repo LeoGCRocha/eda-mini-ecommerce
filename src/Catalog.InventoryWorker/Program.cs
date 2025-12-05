@@ -49,19 +49,12 @@ var host = Host.CreateDefaultBuilder(args)
                 cluster.WithBrokers([messageBroker.BootstrapServers])
                     .AddConsumer(consumer =>
                     {
-                        // TODO: Adicionar isso aqui no SAGA....
                         consumer.Topic(productDeactivatedConsumer.Topic);
-                        consumer.WithGroupId(productDeactivatedConsumer
-                            .GroupId); // Consumer group usado para definir o recebimento de mensagem
-                        // TRAZER ISSO PARA AS CONFIGURAÇÕES
-                        consumer.WithWorkersCount(
-                            1); // Quantidade de threads paralelas que processam, obs, cada thread so obtem dados da mesma partição
-                        consumer.WithBufferSize(
-                            100); // Define o tamanho da fila interna (buffer) de mensagens que o KafkaFlow mantém
-                        consumer.WithAutoOffsetReset(AutoOffsetReset
-                            .Earliest); // Recebe mensagens do início do log de offset disponivel
+                        consumer.WithGroupId(productDeactivatedConsumer.GroupId);
+                        consumer.WithWorkersCount(1); 
+                        consumer.WithBufferSize(100);
+                        consumer.WithAutoOffsetReset(AutoOffsetReset.Earliest); 
                         
-                        // TODO: Adicionar um consumo em BATCH EM ALGUM LUGAR QUE FAÇA SENTIDO PRA ESTRESSAR A LIB
                         consumer.AddMiddlewares(middlewares =>
                         {
                             middlewares.AddDeserializer<JsonCoreDeserializer>();
@@ -89,8 +82,7 @@ var host = Host.CreateDefaultBuilder(args)
                         consumer.AddMiddlewares(middlewares =>
                         {
                             middlewares.Add<MessageContextPropagationMiddleware>();
-                           // <WARNING> Tive problemas com o JSON CORE DESERIALIZER 
-                           middlewares.Add<ProductReservationMiddleware>();
+                            middlewares.Add<ProductReservationMiddleware>();
                         });
                     })
                 );

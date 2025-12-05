@@ -76,7 +76,6 @@ public sealed class InventoryItem : AggregateRoot<InventoryItemId>
         _reservations.Add(new Reservation(orderId, ReservationStatus.Confirmed, quantity));
 
         ReservedQuantity -= quantity;
-        AvailableQuantity += quantity;
     }
 
     public void MakeUnavailable()

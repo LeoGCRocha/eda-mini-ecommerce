@@ -4,38 +4,3 @@
     build:
       context: .
       dockerfile: src/EdaMicroEcommerce.Api/Dockerfile
-
-  eda-microservices-postgres:
-    image: postgres:15
-    container_name: eda-micro-db
-    environment:
-      POSTGRES_USER: app-eda-micro-user
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: edamicrodb
-    ports:
-      - "5450:5432"
-    volumes:
-      - pgdata:/var/lib/postgresql/data
-    restart: unless-stopped
-    
-  kafka:
-    image: lensesio/fast-data-dev:latest
-    hostname: kafka
-    ports:
-      - 2181:2181
-      - 3030:3030
-      - 8081-8083:8081-8083
-      - 9581-9585:9581-9585
-      - 9092:9092
-    environment:
-      ADV_HOST: '127.0.0.1'
-      RUN_TESTS: 0
-
-volumes:
-  pgdata:    
-  edamicroecommerce.apphost:
-    image: edamicroecommerce.apphost
-    build:
-      context: .
-      dockerfile: src/EdaMicroEcommerce.AppHost/Dockerfile
-
