@@ -32,19 +32,16 @@ public class CreateOrderCommandHandler : IRequestHandler<CreateOrderCommand>
         
         try
         {
-            // TODO: Continuar daqui
-            
-            // Pre validation to avoid overload on SAGA / Broker
             if (request.OrderItemDtos.FirstOrDefault(prod => prod.DesireQuantity == 0) is not null)
-                throw new GenericException("Todos os produtos precisam ter quantidade maior que zero.");
+                throw new GenericException("All products must have a minimum quantity grather than 1.");
             
             var productAvailability = await _catalogApi.HasProductsAvailable(request.OrderItemDtos
                 .Select(c => new ProductAvailabilityRequest(c.ProductId, c.DesireQuantity)).ToList());
 
             var unavailableProducts = productAvailability.Where(p => !p.AvailableForQuantity).ToList();
 
-            if (unavailableProducts.Count != 0) // TODO: Não deixar exceção generica.
-                throw new GenericException("Pelo menos um produto não possui quantidade suficiente.");
+            if (unavailableProducts.Count != 0) 
+                throw new GenericException("At least one product doesn't meet the minimum quantity requirement.");
 
             var orderItems = request.OrderItemDtos
                 .Select(item => new OrderItem(new ProductId(item.ProductId), item.DesireQuantity,

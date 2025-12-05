@@ -18,7 +18,7 @@ public static class OrderServicesExtensions
         var messageBrokerSection = appConfiguration.GetSection("MessageBroker");
         var messageBroker = messageBrokerSection.Get<MessageBrokerConfiguration>();
         if (messageBroker is null)
-            throw new Exception("O Message Broker precisa estar definido corretamente.");
+            throw new Exception("Message broker must have configuration.");
 
         services
             .AddDatabase(appConfiguration)
@@ -88,7 +88,6 @@ public static class OrderServicesExtensions
             Partitions = paymentProducer.Partitions
         });
         
-        // TODO: SUBIU COM APENAS UMA PARTIÇÃO
         producers.Add(MessageBrokerConst.ProductReservationProducer, new ProducerConfiguration()
         {
             Topic = productConfiguration.Topic,

@@ -52,7 +52,7 @@ public class PaymentCouponService : IPaymentCouponService
         else
             payment.Process(PaymentStatus.Refused);
 
-        _paymentRepository.SaveAsync();
+        await _paymentRepository.SaveAsync();
         
         return payment;
     }

@@ -1,4 +1,3 @@
-
 using Billing.Api;
 using KafkaFlow;
 using Orders.Api;
@@ -56,7 +55,6 @@ public static class ServicesExtensions
                                 cluster.AddProducer(name, producer =>
                                 {
                                     producer.DefaultTopic(producerConfiguration.Topic)
-                                        // TODO: Deixar configurações menos genericas
                                         .WithProducerConfig(new ProducerConfig()
                                         {
                                             EnableIdempotence = true,

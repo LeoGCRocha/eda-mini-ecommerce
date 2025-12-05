@@ -28,7 +28,6 @@ public class DomainEventsInterceptor : SaveChangesInterceptor
 
     public override ValueTask<InterceptionResult<int>> SavingChangesAsync(DbContextEventData eventData,
         InterceptionResult<int> result,
-        // TODO: Lidar melhor com cancellation tokens
         CancellationToken cancellationToken = new CancellationToken())
     {
         var currentActivity = Activity.Current;

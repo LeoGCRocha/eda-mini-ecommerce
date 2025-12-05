@@ -40,7 +40,7 @@ public class ProductInventoryService(
     {
         var product = await productRepository.GetProductAsync(productId);
         if (product is null)
-            // TODO: Deveria ser um NOT FOUND EXCEPTION
+            // Should be a non-generic exception.
             throw new GenericException("Product not found.");
         product.DeactivateProduct();
         
@@ -58,7 +58,7 @@ public class ProductInventoryService(
 
     public async Task<List<ProductAvailabilityResponse>> HasAvailabilityForProduct(Dictionary<ProductId, int> productsWithQuantity)
     {
-        // <COMMENT> Usando essa abordagem para evitar a necessidade de duas round trips no banco.
+        // <COMMENT> Using this to avoid performing two round-trips to the database.
         var productIdsString = string.Join(",", productsWithQuantity.Keys.Select(id => $"'{id.Value}'"));
         
         var sql = $@"

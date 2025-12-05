@@ -28,7 +28,6 @@ public class ProductReservedState(ILogger<ProductReservedState> logger, IOrderRe
     public async Task<SagaTransitionResult> HandleAsync(SagaContext context, ProductReservationStatusEvent @event,
         CancellationToken cts = default)
     {
-        // TODO: Esse evento em específico não ta registrando o tipo no OUTBOX causando um ruído no FLUXO....
         using var activity =
             Source.OrderSource.StartActivity(
                 $"{nameof(ProductReservedState)} : Responding to a product reservation on the order");
