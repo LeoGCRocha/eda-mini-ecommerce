@@ -311,11 +311,11 @@ SELECT reserved_quantity FROM catalog.inventory_items WHERE product_id = '<produ
 
 ### Scenario 2: Adding a New Event Subscriber
 
-**Example**: Add a notification service that sends emails when orders are confirmed
+**Example**: Add a notification module that sends emails when orders are confirmed
 
 **Implementation Steps**:
 
-1. **Create New Worker Service**
+1. **Create New Worker Module**
    ```bash
    dotnet new worker -n Notifications.EmailWorker
    ```
@@ -355,7 +355,7 @@ SELECT reserved_quantity FROM catalog.inventory_items WHERE product_id = '<produ
    ```
 
 **Benefits of EDA**:
-- Existing services unchanged
+- Existing modules unchanged
 - No deployment dependencies
 - Can replay past events to send missed notifications
 
@@ -446,12 +446,12 @@ Duration: 245ms
 **View Logs**:
 
 **Aspire Dashboard**:
-- Console tab shows all service logs
-- Filter by service or log level
+- Console tab shows all module logs
+- Filter by module or log level
 
 **Console Output**:
 ```bash
-# View specific service logs
+# View specific module logs
 dotnet run --project src/Orders.SagaOrchestrator
 ```
 
@@ -549,6 +549,7 @@ dotnet run --project src/Orders.SagaOrchestrator
 - [ ] Add authentication/authorization
 - [ ] Enable HTTPS
 - [ ] Configure CORS policies
+- [ ] Consider load balancing for the application
 
 ### Configuration Changes
 

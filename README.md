@@ -3,45 +3,46 @@
 ## Project Overview & Scope
 
 ### Project Title
-**EDA Mini E-Commerce** - A microservices-based e-commerce platform demonstrating Event-Driven Architecture patterns
+**EDA Mini E-Commerce** - A modular monolith e-commerce platform demonstrating Event-Driven Architecture patterns
 
 ### Purpose & Goal
 
-This project demonstrates a production-ready implementation of an e-commerce system using **Event-Driven Architecture (EDA)** principles. The system addresses the challenge of building loosely-coupled, scalable microservices that can evolve independently while maintaining data consistency across distributed services.
+This project demonstrates a production-ready implementation of an e-commerce system using **Event-Driven Architecture (EDA)** principles. The system addresses the challenge of building loosely-coupled, scalable modules that can evolve independently while maintaining data consistency through event-driven communication.
 
-**Problem Statement:** Traditional monolithic e-commerce systems face scalability and maintainability challenges. Tight coupling between components makes it difficult to scale individual features, deploy independently, or adapt to changing business requirements.
+**Problem Statement:** Traditional tightly-coupled monolithic e-commerce systems face scalability and maintainability challenges. Tight coupling between components makes it difficult to scale individual features or adapt to changing business requirements.
 
-**Solution:** This project implements a microservices architecture where services communicate asynchronously through events, enabling:
-- Independent scaling of services based on load
-- Resilient system operation (failures in one service don't cascade)
-- Eventual consistency with the Saga pattern for distributed transactions
-- Clear separation of concerns and business domains
+**Solution:** This project implements a modular monolith architecture where modules communicate asynchronously through events, enabling:
+- Clear separation of concerns and business domains through modules
+- Resilient system operation (failures in one module don't cascade)
+- Eventual consistency with the Saga pattern for complex transactions
+- Ability to evolve towards microservices if needed
 
 ### Event-Driven Architecture (EDA) Summary
 
 **Why EDA was chosen:**
-- **Loose Coupling**: Services communicate through events without direct dependencies, allowing independent development and deployment
-- **Scalability**: Individual services can scale independently based on their specific workload
-- **Resilience**: Asynchronous communication with message persistence ensures no data loss during service failures
+- **Loose Coupling**: Modules communicate through events without direct dependencies, allowing independent development
+- **Scalability**: The modular structure allows targeted optimization and future extraction of modules into separate services
+- **Resilience**: Asynchronous communication with message persistence ensures no data loss during failures
 - **Auditability**: Event streams provide a complete audit trail of all system activities
-- **Flexibility**: New services can subscribe to existing events without modifying publishers
+- **Flexibility**: New modules can subscribe to existing events without modifying publishers
 
 **Key Benefits for this Project:**
 - **Order Processing**: Complex multi-step workflows (order → inventory → payment) handled reliably through the Saga pattern
-- **Inventory Management**: Real-time stock updates across multiple services without tight coupling
+- **Inventory Management**: Real-time stock updates across multiple modules without tight coupling
 - **Payment Processing**: Asynchronous payment processing improves user experience and system reliability
 - **System Evolution**: New features (e.g., notifications, analytics) can be added by subscribing to existing events
+- **Deployment Simplicity**: Single deployment unit with modular organization reduces operational complexity
 
 ### Core Concepts
 
 **Events**: Immutable facts representing something that happened in the system (e.g., `OrderCreated`, `PaymentProcessed`). Events carry all necessary data for consumers to act upon them.
 
-**Producers (Publishers)**: Services that create and publish events when significant business actions occur. In this system:
+**Producers (Publishers)**: Modules that create and publish events when significant business actions occur. In this system:
 - **Orders API** publishes `OrderCreated` events
 - **Catalog Service** publishes `ProductDeactivated` and `ProductReserved` events
 - **Billing Service** publishes `PaymentProcessed` events
 
-**Consumers (Subscribers)**: Services that listen for specific events and react accordingly. Each consumer maintains its own state:
+**Consumers (Subscribers)**: Modules that listen for specific events and react accordingly. Each consumer maintains its own state:
 - **Saga Orchestrator** coordinates multi-step workflows
 - **Inventory Worker** manages stock levels
 - **Payment Worker** processes payments
@@ -70,9 +71,9 @@ This project demonstrates a production-ready implementation of an e-commerce sys
   - Bootstrap server port: 59481
 
 ### Databases
-- **PostgreSQL 9.0** - Primary database for all services
+- **PostgreSQL 9.0** - Single shared database for all modules (modular monolith pattern)
   - Port: 5450
-  - Shared database with schema separation per bounded context
+  - Schema separation per bounded context for logical isolation
   - **EFCore.NamingConventions** - Snake_case naming for database entities
 
 ### Infrastructure
@@ -101,7 +102,7 @@ graph TB
         API[EdaMicroEcommerce.Api<br/>Main API Gateway]
     end
     
-    subgraph "Domain Services"
+    subgraph "Domain Modules"
         OrdersAPI[Orders.Api<br/>CQRS Endpoints]
         CatalogAPI[Catalog.Api<br/>CQRS Endpoints]
         BillingAPI[Billing.Api<br/>CQRS Endpoints]
@@ -210,13 +211,13 @@ sequenceDiagram
 - **Role**: Producer (publishes events via Outbox workers)
 - **Responsibilities**: 
   - HTTP endpoint aggregation
-  - Request routing to domain APIs
+  - Request routing to domain modules
   - Outbox workers for reliable event publishing
   - Exception handling and observability
 - **Events Published**: All domain events via Outbox pattern
 - **Events Consumed**: None
 
-#### 2. **Orders.Api** (Orders Domain Service)
+#### 2. **Orders.Api** (Orders Domain Module)
 - **Role**: Producer
 - **Responsibilities**:
   - Order CQRS operations
@@ -228,14 +229,14 @@ sequenceDiagram
 #### 3. **Orders.SagaOrchestrator** (Saga Coordinator)
 - **Role**: Both Producer and Consumer
 - **Responsibilities**:
-  - Orchestrate distributed order workflow
+  - Orchestrate order workflow across modules
   - Manage saga state and compensation logic
-  - Ensure eventual consistency across services
+  - Ensure eventual consistency across modules
 - **Events Published**: `product-reservation`, `payment-pending`
 - **Events Consumed**: `order-created`, `product-reserved`, `payment-processed`
 - **Pattern**: Saga orchestration pattern
 
-#### 4. **Catalog.Api** (Catalog Domain Service)
+#### 4. **Catalog.Api** (Catalog Domain Module)
 - **Role**: Producer
 - **Responsibilities**:
   - Product CQRS operations
@@ -253,7 +254,7 @@ sequenceDiagram
 - **Events Published**: `product-reserved` (via domain events)
 - **Events Consumed**: `product-reservation`, `product-deactivated`
 
-#### 6. **Billing.Api** (Billing Domain Service)
+#### 6. **Billing.Api** (Billing Domain Module)
 - **Role**: Producer
 - **Responsibilities**:
   - Payment CQRS operations
@@ -325,7 +326,7 @@ Optional but recommended:
    - Start PostgreSQL container on port 5450
    - Start Kafka container on port 59481
    - Start KafkaUI on port 9100
-   - Launch all microservices (API, Workers, Saga Orchestrator)
+   - Launch all modules (API, Workers, Saga Orchestrator) as a single application
    - Open Aspire Dashboard in your browser
 
 5. **Access the services**
@@ -359,7 +360,7 @@ dotnet ef database update --project src/Orders.Infra
 dotnet ef database update --project src/Catalog.Infra
 dotnet ef database update --project src/Billing.Infra
 
-# Start each service manually
+# Start each module manually (development only - normally run together via AppHost)
 dotnet run --project src/EdaMicroEcommerce.Api
 dotnet run --project src/Orders.SagaOrchestrator
 dotnet run --project src/Catalog.InventoryWorker
