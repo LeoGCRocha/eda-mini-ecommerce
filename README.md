@@ -678,10 +678,10 @@ dotnet run --project src/Orders.SagaOrchestrator
 
 ## License
 
-[Specify License Here]
+Personal project. 
 
 ## Contact
 
 For questions or support, please contact:
-- **Maintainer**: [Specify Maintainer]
+- **Maintainer**: leogcrocha@gmail.com
 - **Issues**: [GitHub Issues](https://github.com/LeoGCRocha/eda-mini-ecommerce/issues)
