@@ -15,26 +15,27 @@
 ## Architecture Overview
 
 ### Architecture Style
-The EDA Mini E-Commerce system follows a **Microservices Architecture** with **Event-Driven** communication patterns. The system is organized around business capabilities (Orders, Catalog, Billing) with clear bounded contexts.
+The EDA Mini E-Commerce system follows a **Modular Monolith Architecture** with **Event-Driven** communication patterns. The system is organized around business capabilities (Orders, Catalog, Billing) with clear bounded contexts, deployed as a single application.
 
 ### Key Architectural Characteristics
 
 | Characteristic | Implementation |
 |----------------|----------------|
 | **Modularity** | Bounded contexts with separate projects per domain |
-| **Scalability** | Horizontal scaling via stateless services and partitioned events |
+| **Scalability** | Event-driven communication enables future extraction of modules into services |
 | **Resilience** | Asynchronous communication, retries, saga pattern for compensation |
 | **Observability** | OpenTelemetry distributed tracing, structured logging |
 | **Data Consistency** | Eventual consistency via event sourcing and saga orchestration |
-| **Communication** | Asynchronous via Kafka, synchronous HTTP only for queries |
+| **Communication** | Asynchronous via Kafka within the same application |
+| **Deployment** | Single deployment unit simplifies operations while maintaining modularity |
 
 ---
 
 ## Architectural Patterns
 
-### 1. Microservices Pattern
+### 1. Modular Monolith Pattern
 
-Each business capability is implemented as an independent microservice:
+Each business capability is implemented as an independent module within a single application:
 
 ```
 ├── Orders Domain (Order processing, saga coordination)
@@ -43,15 +44,17 @@ Each business capability is implemented as an independent microservice:
 ```
 
 **Benefits:**
-- Independent deployment
-- Technology heterogeneity (though all use .NET in this implementation)
-- Isolated failures
-- Team autonomy
+- Simplified deployment (single application)
+- Shared infrastructure and resources
+- Strong module boundaries via bounded contexts
+- Easier development and debugging
+- Foundation for future microservices if needed
 
-**Challenges Addressed:**
-- Distributed transactions → Saga pattern
-- Data consistency → Eventual consistency + outbox pattern
-- Service discovery → .NET Aspire service management
+**Characteristics:**
+- Single database with schema separation
+- In-process communication via events (through Kafka)
+- All modules deployed together
+- Modular code organization
 
 ### 2. CQRS (Command Query Responsibility Segregation)
 
@@ -76,7 +79,7 @@ GET /api/orders/{id} → GetOrderQuery → OrderQueryHandler
 
 ### 3. Saga Pattern (Orchestration)
 
-Manages distributed transactions across services using a coordinator:
+Manages complex transactions across modules using a coordinator:
 
 ```
 Order Saga Flow:
@@ -307,7 +310,7 @@ sequenceDiagram
 
 ### Database Strategy: Shared Database with Schema Separation
 
-While a true microservices architecture often uses separate databases per service, this implementation uses a **shared PostgreSQL database** with logical separation:
+This implementation uses a **shared PostgreSQL database** with logical separation through schemas (modular monolith pattern):
 
 ```sql
 -- Orders schema
@@ -330,10 +333,12 @@ CREATE TABLE billing.outbox_integration_events (...);
 ```
 
 **Rationale:**
+- Consistent with modular monolith architecture
 - Simpler local development
-- Easier transaction management for demos
+- Easier transaction management
 - Reduced operational complexity
-- Can be split into separate databases in production
+- Schema separation maintains module boundaries
+- Can be split into separate databases when evolving to microservices
 
 ### Entity Framework Core Configuration
 
@@ -457,7 +462,7 @@ services.AddKafkaFlowHostedService(kafka => kafka
 
 ### EdaMicroEcommerce.Api (Main API)
 
-**Purpose**: API Gateway and event publishing coordinator
+**Purpose**: Main application API and event publishing coordinator
 
 **Technology Stack:**
 - ASP.NET Core 8.0
@@ -476,7 +481,7 @@ services.AddKafkaFlowHostedService(kafka => kafka
 
 ### Orders.SagaOrchestrator
 
-**Purpose**: Coordinate order workflow across services
+**Purpose**: Coordinate order workflow across modules
 
 **Key Components:**
 - `OrderCreatedMessageHandler`: Initiates saga
@@ -558,7 +563,7 @@ Reply: payment-processed event
 
 ### Publish-Subscribe Pattern
 
-Product deactivation uses pub-sub:
+Product deactivation uses pub-sub across modules:
 
 ```
 Publisher: Catalog.Api
@@ -566,7 +571,7 @@ Event: product-deactivated
 Subscribers: 
   - Catalog.InventoryWorker (update stock)
   - Orders.SagaOrchestrator (cancel pending orders - future)
-  - Notifications.Service (alert users - future)
+  - Notifications.Module (alert users - future)
 ```
 
 ### Competing Consumers Pattern
@@ -590,10 +595,12 @@ Kafka distributes partitions across instances:
 
 ### Horizontal Scaling
 
-**Stateless Services**: All services can scale horizontally
+**Note**: As a modular monolith, the entire application scales as a unit. For independent module scaling, consider extracting modules into separate microservices.
+
+**Current Scaling Options**:
 ```bash
-# Scale saga orchestrator to 3 instances
-kubectl scale deployment saga-orchestrator --replicas=3
+# Scale the entire application
+kubectl scale deployment eda-ecommerce --replicas=3
 ```
 
 **Kafka Partitioning**: Increase partitions for higher throughput
@@ -636,11 +643,12 @@ services.AddDbContext<ReadOnlyOrdersDbContext>(options =>
 
 ## Future Architecture Enhancements
 
-1. **Event Sourcing**: Store all state changes as events
-2. **CQRS with Separate Read Models**: Dedicated read databases
-3. **API Gateway**: Centralized routing, authentication, rate limiting
-4. **Service Mesh**: Istio/Linkerd for advanced traffic management
-5. **Separate Databases**: True database-per-service isolation
-6. **Dead Letter Queues**: Handle poison messages
-7. **Circuit Breakers**: Prevent cascading failures
-8. **API Versioning**: Support multiple API versions
+1. **Extract to Microservices**: Individual modules can be extracted into separate services as scaling needs grow
+2. **Event Sourcing**: Store all state changes as events
+3. **CQRS with Separate Read Models**: Dedicated read databases
+4. **API Gateway**: Centralized routing, authentication, rate limiting (if extracting to microservices)
+5. **Service Mesh**: Istio/Linkerd for advanced traffic management (if extracting to microservices)
+6. **Separate Databases**: Database-per-service isolation (when moving to microservices)
+7. **Dead Letter Queues**: Handle poison messages
+8. **Circuit Breakers**: Prevent cascading failures
+9. **API Versioning**: Support multiple API versions

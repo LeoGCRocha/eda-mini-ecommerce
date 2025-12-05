@@ -622,7 +622,7 @@ and troubleshooting common installation issues.
 
 3. **Configure Kafka Topic**
    ```csharp
-   // In worker Program.cs
+   // In worker/module Program.cs
    .CreateTopicIfNotExists("order-cancelled", numPartitions: 3, replicationFactor: 1)
    ```
 
@@ -646,7 +646,7 @@ and troubleshooting common installation issues.
 
 ### Adding a New Consumer Service
 
-See [Usage Guide - Scenario 2](usage.md#scenario-2-adding-a-new-event-subscriber) for detailed steps.
+See [Usage Guide - Scenario 2](usage.md#scenario-2-adding-a-new-event-subscriber) for detailed steps on adding new event-driven modules.
 
 ---
 

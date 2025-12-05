@@ -162,7 +162,7 @@ FROM catalog.inventory_items;
 
 ### Workflow 2: Product Deactivation
 
-Demonstrates event propagation across services.
+Demonstrates event propagation across modules.
 
 #### Step 1: Deactivate Product
 
@@ -311,11 +311,11 @@ SELECT reserved_quantity FROM catalog.inventory_items WHERE product_id = '<produ
 
 ### Scenario 2: Adding a New Event Subscriber
 
-**Example**: Add a notification service that sends emails when orders are confirmed
+**Example**: Add a notification module that sends emails when orders are confirmed
 
 **Implementation Steps**:
 
-1. **Create New Worker Service**
+1. **Create New Worker Module**
    ```bash
    dotnet new worker -n Notifications.EmailWorker
    ```
@@ -355,7 +355,7 @@ SELECT reserved_quantity FROM catalog.inventory_items WHERE product_id = '<produ
    ```
 
 **Benefits of EDA**:
-- Existing services unchanged
+- Existing modules unchanged
 - No deployment dependencies
 - Can replay past events to send missed notifications
 
@@ -446,12 +446,12 @@ Duration: 245ms
 **View Logs**:
 
 **Aspire Dashboard**:
-- Console tab shows all service logs
-- Filter by service or log level
+- Console tab shows all module logs
+- Filter by module or log level
 
 **Console Output**:
 ```bash
-# View specific service logs
+# View specific module logs
 dotnet run --project src/Orders.SagaOrchestrator
 ```
 
@@ -549,6 +549,7 @@ dotnet run --project src/Orders.SagaOrchestrator
 - [ ] Add authentication/authorization
 - [ ] Enable HTTPS
 - [ ] Configure CORS policies
+- [ ] Consider load balancing for the application
 
 ### Configuration Changes
 
@@ -625,10 +626,10 @@ CREATE INDEX idx_saga_order ON saga_events(order_id);
 
 ### Development Tips
 
-1. **Use Aspire Dashboard**: Real-time view of all services and traces
+1. **Use Aspire Dashboard**: Real-time view of all modules and traces
 2. **KafkaUI for Events**: Verify messages are published/consumed correctly
 3. **Database Queries**: Understand state changes during development
-4. **Log Correlation IDs**: Trace requests across services
+4. **Log Correlation IDs**: Trace requests across modules
 5. **Clean Docker Volumes**: `docker volume prune` when testing from scratch
 
 ### Event Design Tips
