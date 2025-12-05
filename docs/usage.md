@@ -162,7 +162,7 @@ FROM catalog.inventory_items;
 
 ### Workflow 2: Product Deactivation
 
-Demonstrates event propagation across services.
+Demonstrates event propagation across modules.
 
 #### Step 1: Deactivate Product
 
@@ -626,10 +626,10 @@ CREATE INDEX idx_saga_order ON saga_events(order_id);
 
 ### Development Tips
 
-1. **Use Aspire Dashboard**: Real-time view of all services and traces
+1. **Use Aspire Dashboard**: Real-time view of all modules and traces
 2. **KafkaUI for Events**: Verify messages are published/consumed correctly
 3. **Database Queries**: Understand state changes during development
-4. **Log Correlation IDs**: Trace requests across services
+4. **Log Correlation IDs**: Trace requests across modules
 5. **Clean Docker Volumes**: `docker volume prune` when testing from scratch
 
 ### Event Design Tips

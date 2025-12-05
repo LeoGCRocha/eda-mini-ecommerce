@@ -16,7 +16,7 @@
 
 ### Base URLs
 
-When running locally with .NET Aspire, each service gets a dynamic URL. Check the Aspire Dashboard for actual URLs.
+When running locally with .NET Aspire, the application gets a dynamic URL. Check the Aspire Dashboard for the actual URL.
 
 **Typical Local URLs:**
 - **Main API Gateway**: `http://localhost:<dynamic-port>`
